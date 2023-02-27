@@ -9,6 +9,41 @@ def make_endpoints(app):
     def home():
         # TODO(Checkpoint Requirement 2 of 3): Change this to use render_template
         # to render main.html on the home page.
-        return render_template("main.html")
+
+        greeting = "Welcome to RetroPedia! we're still working on the name" # adds a greeting to the wikipedia
+        return render_template("main.html", greeting = greeting)
 
     # TODO(Project 1): Implement additional routes according to the project requirements.
+
+    def fetch_pages():
+        # This function should fetch a list of page names from the GCS content bucket and return them
+        return ['page1','page2','page2']
+    
+    @app.route("/pages")
+    def page_index():
+    # Fetch a list of pages from the GCS content bucket and render the "page_index.html" template
+        pages = fetch_pages() # This function retrieves a list of page names
+        return render_template("page_index", pages = pages)
+
+    def fetch_page_text(page_name):
+    # This function should fetch the text associated with the specified page from the GCS content bucket and return it
+        return f"This is the text for page {page_name}."
+
+    @app.route("/pages/<page_name>")
+    def page(page_name):
+    # Fetch the text associated with the page from the GCS content bucket and render the "page.html" template
+        text = fetch_page_text(page_name) # This is a function that retrieves the text for the specified page
+        return render_template("page.html", page_name = page_name, text = text)
+
+    def fetch_images():
+    # This function should fetch a list of image URLs for each author from the GCS content bucket and return them
+    # For this example I'm returning a list of static image URLs
+        return ['https://example.com/author1.jpg', 'https://example.com/author2.jpg', 'https://example.com/author3.jpg']
+
+    @app.route("/about")
+    def about():
+    # Fetch a list of author images from the GCS content bucket and render the "about.html" template
+        author_images = fetch_images()  # This is a function that retrieves a list of image URLs
+        return render_template("about.html", author_images = author_images)
+
+
