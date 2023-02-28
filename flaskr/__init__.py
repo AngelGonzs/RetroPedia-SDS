@@ -1,5 +1,5 @@
 from flaskr import pages
-
+from flaskr import backend
 from flask import Flask
 
 import logging
@@ -28,5 +28,10 @@ def create_app(test_config=None):
 
     # TODO(Project 1): Make additional modifications here for logging in, backends
     # and additional endpoints.
-    pages.make_endpoints(app)
+
+
+    back = backend.Backend()
+    pages.make_endpoints(app,back)
+
+
     return app

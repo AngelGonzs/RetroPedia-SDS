@@ -1,7 +1,7 @@
-from flask import render_template
+from flask import render_template, redirect, url_for, request
 
 
-def make_endpoints(app):
+def make_endpoints(app, backend):
 
     # Flask uses the "app.route" decorator to call methods when users
     # go to a specific route on the project's website.
@@ -47,3 +47,18 @@ def make_endpoints(app):
         return render_template("about.html", author_images = author_images)
 
 
+    @app.route("/signup", methods = ["POST", "GET"])
+    def signup():
+        if request.method == "POST":
+            backend.sign_up()
+            return render_template("about.html")
+        return render_template("signup.html")
+
+
+    @app.route("/login", methods = ["POST","GET"])
+    def login():
+        if request.method == "POST":
+            backend.sign_in()
+            return render_template("about.html")
+
+        return render_template("login.html")
