@@ -1,7 +1,9 @@
-from flask import render_template
+from flask import Flask, render_template, request, redirect, url_for
+from .backend import Backend
 
 
 def make_endpoints(app):
+    backend = Backend()
 
     # Flask uses the "app.route" decorator to call methods when users
     # go to a specific route on the project's website.
@@ -45,5 +47,20 @@ def make_endpoints(app):
     # Fetch a list of author images from the GCS content bucket and render the "about.html" template
         author_images = fetch_images()  # This is a function that retrieves a list of image URLs
         return render_template("about.html", author_images = author_images)
+    
+    @app.route('/upload', methods=['GET', 'POST'])
+    def upload_file():
+        if request.method == 'POST':
+            # Get the uploaded file from the request object
+            file = request.files['file']
+
+            # Upload the file to Cloud Storage
+            backend.upload(file)
+
+            # Redirect to the upload page after the upload is complete
+            return redirect(url_for('upload_file'))
+
+        # Render the upload page template on GET requests
+        return render_template('upload.html')
 
 
