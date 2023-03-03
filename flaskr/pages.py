@@ -11,7 +11,7 @@ def make_endpoints(app, backend):
         # to render main.html on the home page.
 
         greeting = "Welcome to RetroPedia! we're still working on the name" # adds a greeting to the wikipedia
-        return render_template("nav_bar.html", greeting = greeting)
+        return render_template("main.html", greeting = greeting)
 
     # TODO(Project 1): Implement additional routes according to the project requirements.
 
