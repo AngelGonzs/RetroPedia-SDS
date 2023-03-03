@@ -15,23 +15,40 @@ app = Flask(__name__)
 from google.cloud import storage
 
 class Backend:
-
+    
     def __init__(self):
         # Instantiate a new client for Cloud Storage
-        self.client = storage.Client()
+        self.web_uploads_client = storage.Client()
+        self.wiki_content_client = storage.Client()
 
-        # Get a reference to the GCS bucket
-        self.bucket = self.client.bucket('web-uploads')
+        # Get a reference to the web-uploads bucket
+        self.web_uploads_bucket = self.web_uploads_client.bucket('web-uploads')
+
+        # Get a reference to the wiki-content bucket
+        self.wiki_content_bucket = self.wiki_content_client.bucket('wiki-content-bucket')
+
         
     def get_wiki_page(self, name):
         pass
 
     def get_all_page_names(self):
-        pass
+        # List all the blobs in the wiki-content bucket
+        blobs = self.wiki_content_bucket.list_blobs()
+
+        # Extract the name of each blob (page) and add it to a list
+        page_names = []
+        for blob in blobs:
+            # Ignore blobs that are not files (i.e., folders)
+            if not blob.name.endswith('/'):
+                # Extract the page name from the blob name (remove the file extension)
+                page_name = blob.name.split('.')[0]
+                page_names.append(page_name)
+
+        return page_names
 
     def upload(self, file):
-        # Create a new blob in the bucket and upload the file data
-        blob = self.bucket.blob(file.filename)
+        # Create a new blob in the web-uploads bucket and upload the file data
+        blob = self.web_uploads_bucket.blob(file.filename)
         blob.upload_from_file(file)
         
 
@@ -118,8 +135,6 @@ class Backend:
 
             else:
                 print("Username doesn't exist")
-
-
 
 
 
