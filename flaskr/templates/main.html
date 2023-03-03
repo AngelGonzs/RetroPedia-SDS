@@ -15,8 +15,8 @@
         Welcome to team's SPONGEBOB's Project 
     </div>
     
+    {% block nav_bar %}
     <div>
-        <h2>Navigation Bar feature here?</h2>
         <ul class="nav-list">
             <li style="display: inline-block; margin-left: 5px; margin-right: 5px;"><a href="{{ url_for('home') }}">Home</a></li>
             <li style="display: inline-block; margin-left: 5px; margin-right: 5px;"><a href="{{ url_for('page_index') }}">Pages</a></li>
@@ -27,5 +27,6 @@
             <li style="display: inline-block; margin-left: 5px; margin-right: 5px;"><a href="{{ url_for('signup') }}">Sign Up</a></li>
         </ul>
     </div>
+    {% endblock %}
 
 </html>
