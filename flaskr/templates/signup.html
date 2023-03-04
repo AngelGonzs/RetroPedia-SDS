@@ -4,6 +4,7 @@
     </head>
 
     <body>
+        {% block content %}
         <h1> Sign Up </h1> 
 
         <!-- The `method` specifies how is the data going to be sent -->
@@ -18,5 +19,6 @@
 
             <input type="submit" value="Submit"/>
         </form>
+        {% endblock %}
     </body>
 </html>

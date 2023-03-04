@@ -1,4 +1,6 @@
 from flask import render_template, redirect, url_for, request
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required
+from flaskr import user
 
 
 def make_endpoints(app, backend):
@@ -65,15 +67,80 @@ def make_endpoints(app, backend):
     @app.route("/signup", methods = ["POST", "GET"])
     def signup():
         if request.method == "POST":
-            backend.sign_up()
+
+            username = request.form["username"]
+            password = request.form["password"]
+
+            prefixed_password = "" + password
+
+            backend.sign_up(username, prefixed_password)
             return render_template("about.html")
         return render_template("signup.html")
 
 
-    @app.route("/login", methods = ["POST","GET"])
+    # Ahead, we will work with the Flask Login
+
+    login_manager = LoginManager(app)
+
+    @login_manager.user_loader
+    def load_user(user_ID):
+        return 
+
+    @app.route('/login',methods = ["POST", "GET"])
     def login():
+
         if request.method == "POST":
-            backend.sign_in()
-            return render_template("about.html")
+
+            user_ID = request.form["username"]
+            user_password = request.form["password"]
+
+            # prefixed_password = "" + user_password
+
+            new_user = user.User(user_ID)
+
+            successful_login = backend.sign_in(user_ID, user_password)
+
+            if successful_login: 
+                # If the user is logged in successfully,
+                # we will log the user with Flask
+
+                login_user(new_user)
+                # Now that the user is logged in, 
+                # We can use current_user to refer
+                # to the user logged in
+                return redirect(url_for("home"))
+
+            else:
+                # If the login isn't succesful, we should
+                # redirect the user to the login page and
+                # let them know that their was a mistake
+        
+                
+                # return render_template("login.html", fail = succesful_login)
+                return render_template("login.html")
+
 
         return render_template("login.html")
+
+    @app.route('/logout')
+    @login_required
+    def logout():
+        logout_user()
+        return redirect(url_for('home'))
+
+
+        
+"""Old login method, to be deleted"""
+    # @app.route("/login", methods = ["POST","GET"])
+    # def login():
+    #     if request.method == "POST":
+
+    #         username = request.form["username"]
+    #         password = request.form["password"]
+
+    #         prefixed_password = "" + password
+
+    #         backend.sign_in(username, prefixed_password)
+    #         return render_template("about.html")
+
+    #     return render_template("login.html")
