@@ -18,14 +18,26 @@ def make_endpoints(app, backend):
     # TODO(Project 1): Implement additional routes according to the project requirements.
 
     def fetch_pages():
-        # This function should fetch a list of page names from the GCS content bucket and return them
-        return ['page1','page2','page2']
+        # Fetch the list of page names from the backend
+        pages = backend.get_all_page_names()
+
+        # Append the new pages to the list
+        pages += ["page1", "page2", "page3"]
+
+        # Return the updated list of page names
+        return pages
     
     @app.route("/pages")
     def page_index():
     # Fetch a list of pages from the GCS content bucket and render the "page_index.html" template
         pages = fetch_pages() # This function retrieves a list of page names
-        return render_template("page_index", pages = pages)
+        if not pages:
+            message = "No pages available."
+            return render_template("page_index.html", message=message)
+        else:
+            return render_template("page_index.html", pages = pages)
+
+    
 
     def fetch_page_text(page_name):
     # This function should fetch the text associated with the specified page from the GCS content bucket and return it
