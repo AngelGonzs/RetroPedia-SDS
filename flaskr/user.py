@@ -6,6 +6,6 @@ class User(UserMixin):
         self.auth = auth
     
     def get_id(self):
-        return str(self.id)
+        return self.id
 
 

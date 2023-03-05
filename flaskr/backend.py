@@ -87,10 +87,12 @@ class Backend:
         if blob_check.exists():
             print("Username already exists, please try a different username")
             # We shouldn't exactly print, but somehow render in the sign-up page
+            return False
         else:
             # If blob doesn't exist, create new username with password
             blob_check.upload_from_string(blob_contents)
             print("User succesfully created")
+            return True
 
         
 
@@ -149,3 +151,13 @@ class Backend:
 
     def get_image(self):
         pass
+
+
+    def get_user(self, ID):
+        storage_client = storage.Client()
+        password_buckets = storage_client.bucket("passwords-bucket")
+        
+        blob_name = ID
+        blob_check = password_buckets.blob(blob_name)
+
+        return blob_check.exists()

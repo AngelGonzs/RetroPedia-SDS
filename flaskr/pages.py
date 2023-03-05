@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, request
+from flask import render_template, redirect, url_for, request, flash
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flaskr import user
 
@@ -76,18 +76,7 @@ def make_endpoints(app, backend):
         return render_template('upload.html')
 
 
-    @app.route("/signup", methods = ["POST", "GET"])
-    def signup():
-        if request.method == "POST":
 
-            username = request.form["username"]
-            password = request.form["password"]
-
-            prefixed_password = "" + password
-
-            backend.sign_up(username, prefixed_password)
-            return render_template("about.html")
-        return render_template("signup.html")
 
 
     # Ahead, we will work with the Flask Login
@@ -96,7 +85,13 @@ def make_endpoints(app, backend):
 
     @login_manager.user_loader
     def load_user(user_ID):
-        return 
+
+        #Lookup the user by the ID and if it exists return it, otherwise return None
+
+        user_exists = backend.get_user(user_ID)
+        if user_exists:
+            return user.User(user_ID)
+        return None
 
     @app.route('/login',methods = ["POST", "GET"])
     def login():
@@ -106,9 +101,9 @@ def make_endpoints(app, backend):
             user_ID = request.form["username"]
             user_password = request.form["password"]
 
-            # prefixed_password = "" + user_password
-
-            new_user = user.User(user_ID)
+            if not user_ID or not user_password:            
+                flash("One or more fields haven't been filled, please do so to proceed")
+                return redirect(url_for('login'))
 
             successful_login = backend.sign_in(user_ID, user_password)
 
@@ -116,20 +111,24 @@ def make_endpoints(app, backend):
                 # If the user is logged in successfully,
                 # we will log the user with Flask
 
+                new_user = user.User(user_ID)
                 login_user(new_user)
                 # Now that the user is logged in, 
                 # We can use current_user to refer
                 # to the user logged in
+
+                
+                flash('You were successfully logged in')
                 return redirect(url_for("home"))
+
 
             else:
                 # If the login isn't succesful, we should
                 # redirect the user to the login page and
                 # let them know that their was a mistake
         
-                
-                # return render_template("login.html", fail = succesful_login)
-                return render_template("login.html")
+                flash('Invalid email or password')
+                return redirect(url_for('login'))
 
 
         return render_template("login.html")
@@ -141,18 +140,29 @@ def make_endpoints(app, backend):
         return redirect(url_for('home'))
 
 
-        
-"""Old login method, to be deleted"""
-    # @app.route("/login", methods = ["POST","GET"])
-    # def login():
-    #     if request.method == "POST":
+    @app.route("/signup", methods = ["POST", "GET"])
+    def signup():
+        if request.method == "POST":
 
-    #         username = request.form["username"]
-    #         password = request.form["password"]
+            username = request.form["username"]
+            password = request.form["password"]
 
-    #         prefixed_password = "" + password
+            # Check if either of the fields have not been filled
+            if not username or not password:            
+                flash("One or more fields haven't been filled, please do so to proceed")
+                return render_template("signup.html")
 
-    #         backend.sign_in(username, prefixed_password)
-    #         return render_template("about.html")
+            prefixed_password = "" + password
 
-    #     return render_template("login.html")
+            succesful_signup = backend.sign_up(username, prefixed_password)
+
+            if succesful_signup:
+                new_user = user.User(username)
+                login_user(new_user)
+                return redirect(url_for("home"))
+
+            else:
+                flash("Username already exists, try a different one!")
+                return redirect(url_for("signup"))
+
+        return render_template("signup.html")
