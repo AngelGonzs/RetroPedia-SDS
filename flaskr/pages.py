@@ -80,6 +80,10 @@ def make_endpoints(app, backend):
             # Get the uploaded file from the request object
             file = request.files['file']
 
+            if not file:
+                flash("Please enter a file to upload")
+                return redirect(url_for('upload_file'))
+
             # Upload the file to Cloud Storage
             backend.upload(file)
 
