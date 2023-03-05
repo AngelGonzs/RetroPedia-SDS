@@ -21,8 +21,22 @@ def make_endpoints(app, backend):
         # Fetch the list of page names from the backend
         pages = backend.get_all_page_names()
 
+        # Define the new page names
+        new_pages = [
+            "Super Mario Bros. (1985)",
+            "Pac-Man (1980)",
+            "Tetris (1984)",
+            "Donkey Kong (1981)",
+            "Space Invaders (1978)",
+            "The Legend of Zelda (1986)",
+            "Sonic the Hedgehog (1991)",
+            "Street Fighter II (1991)",
+            "Final Fantasy VII (1997)",
+            "GoldenEye 007 (1997)"
+        ]
+
         # Append the new pages to the list
-        pages += ["page1", "page2", "page3"]
+        pages += new_pages
 
         # Return the updated list of page names
         return pages
