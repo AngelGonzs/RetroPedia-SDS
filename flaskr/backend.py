@@ -3,6 +3,8 @@ from google.cloud import storage
 from flask import Flask
 from flask import render_template
 from flask import request
+import bs4 as bs
+import io
 import hashlib
 
 
@@ -29,7 +31,25 @@ class Backend:
 
         
     def get_wiki_page(self, name):
-        pass
+        #Gets a list of all the "blobs" in the wiki
+        blobs = self.wiki_content_bucket.list_blobs()
+        
+        #Extract the data of the page with the same name and use BeautifulSoup to store the data
+        for blob in blobs:
+            #Ignores blobs that are not files, so that the correct things can be compared
+            if not blob.name.endswith('/'):
+                if(name == blob.name):
+                    #Opens and reads the html file
+                    wiki_file = open(blob.name, "r")
+                    index = wiki_file.read()
+                    
+                    #Creates a BeautifulSoup Object and specifies the parser
+                    Parse = bs.BeautifulSoup(index, 'lxml')
+        return Parse
+
+
+
+
 
     def get_all_page_names(self):
         # List all the blobs in the wiki-content bucket
@@ -149,8 +169,20 @@ class Backend:
         return False
 
 
-    def get_image(self):
-        pass
+    def get_image(self, name):
+        #Grabs a list of all the blobs in a 
+        blobs = self.web_uploads_bucket.list_blobs()
+        for blob in blobs:
+            #Once again ignoring blobs that are not files
+            if not blob.name.endswith('/'):
+                #Compares the name passed in the function to the name of the current blob.
+                if(name == blob.name):
+                    img_file = open(blob.name, "r")
+        img_data = img_file.read()
+        img_bytes = io.BytesIO(img_data)
+        return img_bytes    
+                
+
 
 
     def get_user(self, ID):
