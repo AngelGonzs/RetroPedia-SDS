@@ -3,7 +3,8 @@ from google.cloud import storage
 from flask import Flask
 from flask import render_template
 from flask import request
-from bs4 import BeautifulSoup
+import bs4 as bs
+import io
 import hashlib
 
 
@@ -39,11 +40,11 @@ class Backend:
             if not blob.name.endswith('/'):
                 if(name == blob.name):
                     #Opens and reads the html file
-                    wiki_file = open(blob.name + ".html", "r")
+                    wiki_file = open(blob.name, "r")
                     index = wiki_file.read()
                     
                     #Creates a BeautifulSoup Object and specifies the parser
-                    Parse = BeautifulSoup(index, 'lxml')
+                    Parse = bs.BeautifulSoup(index, 'lxml')
         return Parse
 
 
@@ -168,17 +169,18 @@ class Backend:
         return False
 
 
-    def get_image(self):
+    def get_image(self, name):
         #Grabs a list of all the blobs in a 
         blobs = self.web_uploads_bucket.list_blobs()
-        image_names = []
         for blob in blobs:
             #Once again ignoring blobs that are not files
             if not blob.name.endswith('/'):
-                #Gets the full name of the image (including file extension) and appends it to the image names list.
-                image_name = blob.name
-                image_names.append(image_name)
-        return image_names    
+                #Compares the name passed in the function to the name of the current blob.
+                if(name == blob.name):
+                    img_file = open(blob.name, "r")
+        img_data = img_file.read()
+        img_bytes = io.BytesIO(img_data)
+        return img_bytes    
                 
 
 
