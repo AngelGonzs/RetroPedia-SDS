@@ -3,6 +3,7 @@ from google.cloud import storage
 from flask import Flask
 from flask import render_template
 from flask import request
+from bs4 import BeautifulSoup
 import hashlib
 
 
@@ -29,7 +30,26 @@ class Backend:
 
         
     def get_wiki_page(self, name):
-        pass
+        #Gets a list of all the "blobs" in the wiki
+        blobs = self.wiki_content_bucket.list_blobs()
+        
+        #Extract the data of the page with the same name and use a list to store the data of the page
+        page_data = []
+        for blob in blobs:
+            #Ignores blobs that are not files, so that the correct things can be compared
+            if not blob.name.endswith('/'):
+                if(name == blob.name):
+                    #Opens and reads the html file
+                    wiki_file = open(blob.name + ".html", "r")
+                    index = wiki_file.read()
+                    
+                    #Creates a BeautifulSoup Object and specifies the parser
+                    Parse = BeautifulSoup(index, 'lxml')
+        return Parse
+
+
+
+
 
     def get_all_page_names(self):
         # List all the blobs in the wiki-content bucket
