@@ -1,8 +1,5 @@
 from google.cloud import storage
-
 from flask import Flask
-from flask import render_template
-from flask import request
 import hashlib
 
 
@@ -10,9 +7,6 @@ import hashlib
 app = Flask(__name__)
 
 
-
-# TODO(Project 1): Implement Backend according to the requirements.
-from google.cloud import storage
 
 class Backend:
     
@@ -29,6 +23,7 @@ class Backend:
 
         
     def get_wiki_page(self, name):
+        
         pass
 
     def get_all_page_names(self):
@@ -153,7 +148,17 @@ class Backend:
         pass
 
 
+
     def get_user(self, ID):
+
+        """
+        This method serves as a helper for the `login_manager()` from Flask Login.
+        It's purpose is to check if a user of a specific ID exists or not.
+
+        Args:
+        ID - This is the ID of the User, it it equivalent to a unique username.
+        
+        """
         storage_client = storage.Client()
         password_buckets = storage_client.bucket("passwords-bucket")
         
