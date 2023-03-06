@@ -28,32 +28,13 @@ class Backend:
 
         # Get a reference to the wiki-content bucket
         self.wiki_content_bucket = self.wiki_content_client.bucket('wiki-content-bucket')
-
         
-    def get_wiki_page(self, name):
-        #Gets a list of all the "blobs" in the wiki
-        blobs = self.wiki_content_bucket.list_blobs()
-        
-        #Extract the data of the page with the same name and use BeautifulSoup to store the data
-        for blob in blobs:
-            #Ignores blobs that are not files, so that the correct things can be compared
-            if not blob.name.endswith('/'):
-                if(name == blob.name):
-                    #Opens and reads the html file
-                    wiki_file = open(blob.name, "r")
-                    index = wiki_file.read()
-                    
-                    #Creates a BeautifulSoup Object and specifies the parser
-                    Parse = bs.BeautifulSoup(index, 'lxml')
-        return Parse
-
-
-
-
+        # Set the default bucket to wiki-content-bucket
+        self.bucket = self.wiki_content_bucket
 
     def get_all_page_names(self):
         # List all the blobs in the wiki-content bucket
-        blobs = self.wiki_content_bucket.list_blobs()
+        blobs = self.bucket.list_blobs()
 
         # Extract the name of each blob (page) and add it to a list
         page_names = []
@@ -65,6 +46,21 @@ class Backend:
                 page_names.append(page_name)
 
         return page_names
+
+    def get_page_text(self, page_name):
+        # Get a reference to the blob that contains the content for the specified page
+        blob = self.bucket.get_blob(f"{page_name}.txt")
+
+        if blob is not None:
+            # Download the content from the blob
+            content = blob.download_as_text()
+
+            # Return the content
+            return content
+
+        else:
+            # If the blob does not exist, return None
+            return None
 
     def upload(self, file):
         # Create a new blob in the web-uploads bucket and upload the file data
@@ -168,7 +164,6 @@ class Backend:
 
         return False
 
-
     def get_image(self, name):
         #Grabs a list of all the blobs in a 
         blobs = self.web_uploads_bucket.list_blobs()
@@ -182,8 +177,6 @@ class Backend:
         img_bytes = io.BytesIO(img_data)
         return img_bytes    
                 
-
-
 
     def get_user(self, ID):
         storage_client = storage.Client()
