@@ -33,8 +33,7 @@ class Backend:
         #Gets a list of all the "blobs" in the wiki
         blobs = self.wiki_content_bucket.list_blobs()
         
-        #Extract the data of the page with the same name and use a list to store the data of the page
-        page_data = []
+        #Extract the data of the page with the same name and use BeautifulSoup to store the data
         for blob in blobs:
             #Ignores blobs that are not files, so that the correct things can be compared
             if not blob.name.endswith('/'):
@@ -170,7 +169,18 @@ class Backend:
 
 
     def get_image(self):
-        pass
+        #Grabs a list of all the blobs in a 
+        blobs = self.web_uploads_bucket.list_blobs()
+        image_names = []
+        for blob in blobs:
+            #Once again ignoring blobs that are not files
+            if not blob.name.endswith('/'):
+                #Gets the full name of the image (including file extension) and appends it to the image names list.
+                image_name = blob.name
+                image_names.append(image_name)
+        return image_names    
+                
+
 
 
     def get_user(self, ID):
