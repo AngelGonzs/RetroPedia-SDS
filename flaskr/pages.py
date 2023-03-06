@@ -1,6 +1,8 @@
 from flask import render_template, redirect, url_for, request, flash
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flaskr import user
+from flask import Response
+import base64
 import re
 
 def make_endpoints(app, backend):
@@ -124,16 +126,34 @@ def make_endpoints(app, backend):
         return text
 
 
-    def fetch_images():
-    # This function should fetch a list of image URLs for each author from the GCS content bucket and return them
-    # For this example I'm returning a list of static image URLs
-        return ['https://example.com/author1.jpg', 'https://example.com/author2.jpg', 'https://example.com/author3.jpg']
+    
+    # Define a Flask route that displays an image
+    @app.route('/image/<name>')
+    def fetch_images(name):
+        # Call the get_image method to retrieve the image data
+        img_bytes = backend.get_image(name)
+
+        if img_bytes is not None:
+            # If the image data was successfully retrieved, return a Flask Response object that sends the image data
+            return Response(img_bytes, mimetype='image/jpeg')
+
+        else:
+            # If the image data could not be retrieved, return a 404 error
+            return 'Image not found', 404
 
     @app.route("/about")
     def about():
-    # Fetch a list of author images from the GCS content bucket and render the "about.html" template
-        author_images = fetch_images()  # This is a function that retrieves a list of image URLs
-        return render_template("about.html", author_images = author_images)
+        # Fetch the image data for each team member
+        TEAM_MEMBERS = ['Cambrell', 'Samuel', 'Angel']
+        author_images = {}
+        for name in TEAM_MEMBERS:
+            image_name = f"{name.lower().replace(' ', '_')}.jpg"
+            img_bytes = backend.get_image(image_name)
+            if img_bytes is not None:
+                author_images[name] = base64.b64encode(img_bytes.getvalue()).decode('utf-8')
+
+        # Render the "about.html" template with the author images
+        return render_template("about.html", author_images=author_images)
     
     @app.route('/upload', methods=['GET', 'POST'])
     def upload_file():
