@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request, flash
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flaskr import user
-
+import re
 
 def make_endpoints(app, backend):
 
@@ -21,47 +21,108 @@ def make_endpoints(app, backend):
         # Fetch the list of page names from the backend
         pages = backend.get_all_page_names()
 
-        # Define the new page names
-        new_pages = [
-            "Super Mario Bros. (1985)",
-            "Pac-Man (1980)",
-            "Tetris (1984)",
-            "Donkey Kong (1981)",
-            "Space Invaders (1978)",
-            "The Legend of Zelda (1986)",
-            "Sonic the Hedgehog (1991)",
-            "Street Fighter II (1991)",
-            "Final Fantasy VII (1997)",
-            "GoldenEye 007 (1997)"
-        ]
+        # Define the new page names with their corresponding user-friendly names
+        new_pages = {
+            "Super Mario Bros (1985)": "Super Mario Bros. 1985",
+            "PacMan (1980)": "Pac-Man 1980",
+            "Tetris (1984)": "Tetris 1984",
+            "Donkey Kong (1981)": "Donkey Kong 1981",
+            "Space Invaders (1978)": "Space Invaders 1978",
+            "The Legend of Zelda (1986)": "The Legend of Zelda 1986",
+            "Sonic the Hedgehog (1991)": "Sonic the Hedgehog 1991",
+            "Street Fighter II (1991)": "Street Fighter II 1991",
+            "Final Fantasy VII (1997)": "Final Fantasy VII 1997",
+            "GoldenEye 007 (1997)": "GoldenEye 007 1997"
+        }
 
-        # Append the new pages to the list
-        pages += new_pages
+        # Modify the keys in the new_pages dictionary to make them URL-safe and append them to the pages list
+        pages += [re.sub(r'\W+', '-', page).strip('-') for page in new_pages.keys()]
+
+        # Create a list of user-friendly page names and zip them with the URL-safe page names
+        pretty_page_names = []
+        page_links = []
+        for page in pages:
+            # Check if the page is a new page or an existing page
+            if page in new_pages.values():
+                # If the page is a new page, get the corresponding URL-safe page name from the new_pages dictionary
+                url_page = [k for k, v in new_pages.items() if v == page][0]
+            else:
+                # If the page is an existing page, make it URL-safe
+                url_page = re.sub(r'\W+', '-', page).strip('-')
+            pretty_page_names.append(page)
+            page_links.append(url_for('page', page_path=url_page))
+
+        # Combine the two lists and pass them to the template
+        pages = list(zip(pretty_page_names, page_links))
 
         # Return the updated list of page names
         return pages
-    
+
+    @app.route("/pages/<path:page_path>")
+    def page(page_path):
+        # Convert the URL-safe page path back to the original page name
+        page_name = page_path.replace('-', ' ')
+
+        # Check if the page name is "Super Mario Bros. (1985)" and render the appropriate template
+        if page_name == "Super Mario Bros 1985":
+            return render_template("super_mario_bros.html")
+
+        # Check if the page name is "Pac-Man (1980)" and render the appropriate template
+        if page_name == "PacMan 1980":
+            return render_template("pac_man.html")
+
+        # Check if the page name is "Tetris (1984)" and render the appropriate template
+        if page_name == "Tetris 1984":
+            return render_template("tetris.html")
+
+        # Check if the page name is "Donkey Kong (1981)" and render the appropriate template
+        if page_name == "Donkey Kong 1981":
+            return render_template("donkey_kong.html")
+
+        # Check if the page name is "Space Invaders (1978)" and render the appropriate template
+        if page_name == "Space Invaders 1978":
+            return render_template("space_invaders.html")
+
+        # Check if the page name is "The Legend of Zelda (1986)" and render the appropriate template
+        if page_name == "The Legend of Zelda 1986":
+            return render_template("zelda.html")
+
+        # Check if the page name is "Sonic the Hedgehog (1991)" and render the appropriate template
+        if page_name == "Sonic the Hedgehog 1991":
+            return render_template("sonic.html")
+
+        # Check if the page name is "Street Fighter II (1991)" and render the appropriate template
+        if page_name == "Street Fighter II 1991":
+            return render_template("street_fighter.html")
+
+        # Check if the page name is "Final Fantasy VII (1997)" and render the appropriate template
+        if page_name == "Final Fantasy VII 1997":
+            return render_template("final_fantasy.html")
+
+        # Check if the page name is "GoldenEye 007 (1997)" and render the appropriate template
+        if page_name == "GoldenEye 007 1997":
+            return render_template("goldeneye.html")
+
+        # Fetch the text associated with the page from the GCS content bucket and render the "page.html" template
+        text = fetch_page_text(page_name) # This is a function that retrieves the text for the specified page
+        return render_template("page.html", page_name = page_name, text = text)
+
     @app.route("/pages")
     def page_index():
-    # Fetch a list of pages from the GCS content bucket and render the "page_index.html" template
-        pages = fetch_pages() # This function retrieves a list of page names
+        # Fetch a list of pages from the GCS content bucket and render the "page_index.html" template
+        pages = fetch_pages()
         if not pages:
             message = "No pages available."
             return render_template("page_index.html", message=message)
         else:
-            return render_template("page_index.html", pages = pages)
+            return render_template("page_index.html", pages=pages)
 
-    
 
     def fetch_page_text(page_name):
-    # This function should fetch the text associated with the specified page from the GCS content bucket and return it
-        return f"This is the text for page {page_name}."
+        # Fetch the text associated with the page from the backend
+        text = backend.get_page_text(page_name)
+        return text
 
-    @app.route("/pages/<page_name>")
-    def page(page_name):
-    # Fetch the text associated with the page from the GCS content bucket and render the "page.html" template
-        text = fetch_page_text(page_name) # This is a function that retrieves the text for the specified page
-        return render_template("page.html", page_name = page_name, text = text)
 
     def fetch_images():
     # This function should fetch a list of image URLs for each author from the GCS content bucket and return them
