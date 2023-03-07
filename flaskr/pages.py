@@ -4,6 +4,7 @@ from flaskr import user
 from flask import Response
 import base64
 import re
+import requests
 
 def make_endpoints(app, backend):
 
@@ -126,17 +127,13 @@ def make_endpoints(app, backend):
         return text
 
 
-    
-    # Define a Flask route that displays an image
     @app.route('/image/<name>')
     def fetch_images(name):
-        # Call the get_image method to retrieve the image data
-        img_bytes = backend.get_image(name)
-
-        if img_bytes is not None:
+        url = f'https://storage.googleapis.com/web-uploads/IMG_20210621_161958736_2.jpg'
+        resp = requests.get(url)
+        if resp.status_code == 200:
             # If the image data was successfully retrieved, return a Flask Response object that sends the image data
-            return Response(img_bytes, mimetype='image/jpeg')
-
+            return Response(resp.content, mimetype='image/jpeg')
         else:
             # If the image data could not be retrieved, return a 404 error
             return 'Image not found', 404
