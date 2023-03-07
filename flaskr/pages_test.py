@@ -64,7 +64,7 @@ def test_upload_file(client):
     assert resp.status_code == 302  # Redirect status code
     assert b"Please log in" in resp.data
 
-    # Log in the user and try again
+def test_about_page(client):
     client.post("/login", data={"username": "test_user", "password": "test_password"})
     resp = client.post("/upload", data={"username": "test_user", "password": "test_password"})
     assert resp.status_code == 302  # Redirect status code

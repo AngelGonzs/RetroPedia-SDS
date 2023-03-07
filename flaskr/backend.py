@@ -2,6 +2,7 @@ from google.cloud import storage
 from flask import Flask
 import io
 import hashlib
+from flask import Flask, render_template
 
 
 # Initialize:
@@ -74,7 +75,19 @@ class Backend:
                 page_names.append(page_name)
 
         return page_names
+        
+    def get_wiki_page(self, name):
+        #Lists all the blobs in the wiki-content bucket
+        blobs = self.bucket.list_blobs()
 
+        #Search through each blob and see if it's the same as page name provided
+        for blob in blobs:
+            #Ignore blobs that are not files
+            if not blob.name.endswith('/'):
+                if(name == blob.name):
+                    return render_template(name)
+        return None
+    
     def get_page_text(self, page_name):
         # Get a reference to the blob that contains the content for the specified page
         blob = self.bucket.get_blob(f"{page_name}.txt")
@@ -178,7 +191,6 @@ class Backend:
             blob_contents = str(blob_check.download_as_string()) # REAL PASSWORD
             blob_contents = blob_contents[2:-1]
 
-            print("USER PW",user_password , "HASHED PW REAL",blob_contents)
             if hashed_password == blob_contents:
                 #Everything good, welcome 
                 return True
@@ -222,5 +234,4 @@ class Backend:
         """        
         blob_name = ID
         blob_check = self.password_bucket.blob(blob_name)
-
         return blob_check.exists()
