@@ -70,7 +70,19 @@ class Backend:
                 page_names.append(page_name)
 
         return page_names
+        
+    def get_wiki_page(self, name):
+        #Lists all the blobs in the wiki-content bucket
+        blobs = self.bucket.list_blobs()
 
+        #Search through each blob and see if it's the same as page name provided
+        for blob in blobs:
+            #Ignore blobs that are not files
+            if not blob.name.endswith('/'):
+                if(name == blob.name.split('.')[0]):
+                    return render_template(name + ".html")
+        return None
+    
     def get_page_text(self, page_name):
         # Get a reference to the blob that contains the content for the specified page
         blob = self.bucket.get_blob(f"{page_name}.txt")

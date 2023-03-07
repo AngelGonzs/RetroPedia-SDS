@@ -40,3 +40,19 @@ Cases to test for Flask_Login:
 def test_flask_login(user_ID):
 
     pass
+
+
+"""
+Cases to test for get_wiki_page:
+    1. The page name is found, and the html file is returned
+    2. The page name is not found, and nothing is returned
+"""
+def test_get_wiki_page(name):
+    name = input("Enter html file name (No file extension): ")
+    res = backend.get_wiki_page(name)
+    assert res.name == name + ".html"
+    
+    #Test 2
+    name = input("Enter html file name (No file extension): ")
+    res = backend.get_wiki_page(name)
+    assert res == None
