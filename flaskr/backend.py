@@ -85,7 +85,7 @@ class Backend:
             #Ignore blobs that are not files
             if not blob.name.endswith('/'):
                 if(name == blob.name):
-                    return render_template(name)
+                    return render_template(blob.name)
         return None
     
     def get_page_text(self, page_name):
