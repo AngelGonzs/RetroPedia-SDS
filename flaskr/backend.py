@@ -204,20 +204,19 @@ class Backend:
         return False
 
     def get_image(self, name):
-        #Grabs a list of all the blobs in a 
-        blobs = self.web_uploads_bucket.list_blobs()
-        for blob in blobs:
-            #Once again ignoring blobs that are not files
-            if not blob.name.endswith('/'):
-                #Compares the name passed in the function to the name of the current blob.
-                if(name == blob.name):
-                    img_file = open(blob.name, "r")
-                    img_data = img_file.read()
-                    img_bytes = io.BytesIO(img_data)
-                    return img_bytes
+        # Get a reference to the blob that contains the image data
+        blob = self.web_uploads_bucket.get_blob(name)
 
-        # If we get here, it means no matching blob was found
-        return None
+        if blob is not None:
+            # Download the content from the blob
+            content = blob.download_as_string()
+
+            # Return the content as bytes
+            return io.BytesIO(content)
+
+        else:
+            # If the blob does not exist, return None
+            return None
    
                 
     def get_user(self, ID):
