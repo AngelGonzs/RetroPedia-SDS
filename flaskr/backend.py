@@ -200,12 +200,14 @@ class Backend:
                 #Compares the name passed in the function to the name of the current blob.
                 if(name == blob.name):
                     img_file = open(blob.name, "r")
-        img_data = img_file.read()
-        img_bytes = io.BytesIO(img_data)
-        return img_bytes    
+                    img_data = img_file.read()
+                    img_bytes = io.BytesIO(img_data)
+                    return img_bytes
+
+        # If we get here, it means no matching blob was found
+        return None
+   
                 
-
-
     def get_user(self, ID):
 
         """
