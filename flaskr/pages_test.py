@@ -1,5 +1,6 @@
+import io
+import os
 from flaskr import create_app
-
 import pytest
 
 # See https://flask.palletsprojects.com/en/2.2.x/testing/
@@ -20,7 +21,7 @@ def client(app):
 def test_home_page(client):
     resp = client.get("/")
     assert resp.status_code == 200
-    assert b"Welcome to RetroPedia! we're still working on the name" in resp.data
+    assert b"Welcome to team's SPONGEBOB's Project" in resp.data
 
 
 def test_page_index(client):
@@ -39,7 +40,7 @@ def test_about(client):
 
 
 def test_fetch_images(client):
-    resp = client.get("/image/Cambrell.jpg")
+    resp = client.get("/image/IMG_20210621_161958736_2.jpg")
     assert resp.status_code == 200
 
 
@@ -48,23 +49,32 @@ def test_page(client):
     assert resp.status_code == 200
 
 
-def test_login(client):
-    resp = client.post("/login", data={"username": "test_user", "password": "test_password"})
-    assert resp.status_code == 302  # Redirect status code
-
-
 def test_signup(client):
     resp = client.post("/signup", data={"username": "test_user", "password": "test_password"})
     assert resp.status_code == 302  # Redirect status code
 
 
-def test_upload_file(client):
-    # Ensure the user is authenticated to upload a file
-    resp = client.post("/upload", data={"username": "test_user", "password": "test_password"})
+def test_login(client):
+    resp = client.post("/login", data={"username": "sam", "password": "1234"})
     assert resp.status_code == 302  # Redirect status code
-    assert b"Please log in" in resp.data
+
+
+def test_upload_file(client):
+    # Log in the user before uploading a file
+    client.post("/login", data={"username": "sam", "password": "1234"})
+
+    # Replace the file path with the correct path to your test image
+    file_path = os.path.join(os.path.dirname(__file__), "test_image.jpg")
+
+    # Use the file_path variable in the request
+    with open(file_path, "rb") as f:
+        resp = client.post("/upload", data={"file": f})
+
+    assert resp.status_code == 302  # Redirect status code
+
 
 def test_about_page(client):
-    client.post("/login", data={"username": "test_user", "password": "test_password"})
-    resp = client.post("/upload", data={"username": "test_user", "password": "test_password"})
-    assert resp.status_code == 302  # Redirect status code
+    # Log in the user before accessing the about page
+    client.post("/login", data={"username": "sam", "password": "1234"})
+    resp = client.get("/about")
+    assert resp.status_code == 200
