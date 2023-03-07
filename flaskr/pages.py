@@ -5,9 +5,10 @@ from flask import Response
 import base64
 import re
 import requests
+from flaskr.backend import Backend
 
 def make_endpoints(app, backend):
-
+    backend = Backend()
     # Flask uses the "app.route" decorator to call methods when users
     # go to a specific route on the project's website.
     @app.route("/")
@@ -129,11 +130,13 @@ def make_endpoints(app, backend):
 
     @app.route('/image/<name>')
     def fetch_images(name):
-        url = f'https://storage.googleapis.com/web-uploads/IMG_20210621_161958736_2.jpg'
-        resp = requests.get(url)
-        if resp.status_code == 200:
+        backend = Backend()
+        img_bytes = backend.get_image(name)
+
+        if img_bytes is not None:
             # If the image data was successfully retrieved, return a Flask Response object that sends the image data
-            return Response(resp.content, mimetype='image/jpeg')
+            return Response(img_bytes, mimetype='image/jpeg')
+
         else:
             # If the image data could not be retrieved, return a 404 error
             return 'Image not found', 404
