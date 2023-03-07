@@ -178,7 +178,6 @@ class Backend:
             blob_contents = str(blob_check.download_as_string()) # REAL PASSWORD
             blob_contents = blob_contents[2:-1]
 
-            print("USER PW",user_password , "HASHED PW REAL",blob_contents)
             if hashed_password == blob_contents:
                 #Everything good, welcome 
                 return True
@@ -220,5 +219,4 @@ class Backend:
         """        
         blob_name = ID
         blob_check = self.password_bucket.blob(blob_name)
-
         return blob_check.exists()
