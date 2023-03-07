@@ -1,8 +1,5 @@
 from google.cloud import storage
 from flask import Flask
-from flask import render_template
-from flask import request
-# import bs4 as bs # this is giving me some issues to import but it doesn't seem to be used at all
 import io
 import hashlib
 
@@ -55,6 +52,13 @@ class Backend:
         
         # Set the default bucket to wiki-content-bucket
         self.bucket = self.wiki_content_bucket
+
+
+
+        # Initiate buckets and clients for `sign_in` and `sign_up` methods
+
+        self.user_client = storage.Client()
+        self.password_bucket = self.user_client.bucket("passwords-bucket")
 
     def get_all_page_names(self):
         # List all the blobs in the wiki-content bucket
@@ -113,12 +117,7 @@ class Backend:
             in which it will return `False` is if the username already exists, otherwise
             it will create the blob for the User and return True.
         
-        """
-
-        storage_client = storage.Client()
-        passwords_bucket = storage_client.bucket("passwords-bucket")
-
-        
+        """  
         blob_name = username
         user_password = password
 
@@ -126,7 +125,7 @@ class Backend:
 
 
         # Ahead, we will check if a blob for the username already exists.
-        blob_check = passwords_bucket.blob(blob_name)
+        blob_check = self.password_bucket.blob(blob_name)
 
         if blob_check.exists():
             print("Username already exists, please try a different username")
@@ -163,16 +162,10 @@ class Backend:
             it will return False.
         
         """
-
-        storage_client = storage.Client()
-        password_buckets = storage_client.bucket("passwords-bucket")
         
-
-        
-            
-        # Get the username from the form, and then check if a blob exists for the username.
+     
         blob_name = username
-        blob_check = password_buckets.blob(blob_name)
+        blob_check = self.password_bucket.blob(blob_name)
 
         if blob_check.exists():
             
@@ -185,7 +178,7 @@ class Backend:
             blob_contents = str(blob_check.download_as_string()) # REAL PASSWORD
             blob_contents = blob_contents[2:-1]
 
-
+            print("USER PW",user_password , "HASHED PW REAL",blob_contents)
             if hashed_password == blob_contents:
                 #Everything good, welcome 
                 return True
@@ -224,11 +217,8 @@ class Backend:
         
         Returns:
             Boolean which determines if the ID exists as a user or not.
-        """
-        storage_client = storage.Client()
-        password_buckets = storage_client.bucket("passwords-bucket")
-        
+        """        
         blob_name = ID
-        blob_check = password_buckets.blob(blob_name)
+        blob_check = self.password_bucket.blob(blob_name)
 
         return blob_check.exists()
