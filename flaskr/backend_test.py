@@ -4,6 +4,7 @@ from unittest import mock, TestCase
 from unittest.mock import Mock, MagicMock
 import hashlib
 import os
+import io
 from google.cloud.storage.blob import Blob
 from google.cloud import storage
 from flaskr.backend import Backend
@@ -157,6 +158,36 @@ def test_get_wiki_page():
     page_name = "non_existent_page"
     backend.bucket.get_blob.return_value = None
     assert backend.get_wiki_page(page_name) is None
+
+def test_get_all_page_names():
+    backend = Backend()
+    backend.bucket = MagicMock()
+
+    blob = MagicMock()
+    backend.bucket.blob.return_value = blob
+
+    #Test if a valid page name is in the list
+    backend.bucket.list_blobs.return_value = ["signup", "about"]
+    assert "signup" in backend.get_all_page_names()
+
+def test_upload():
+    backend = Backend()
+    backend.bucket = MagicMock()
+
+    blob = MagicMock()
+    blob.upload("Mario.html")
+    assert blob.upload.called
+
+
+def test_get_image():
+    backend = Backend()
+    backend.bucket = MagicMock()
+    backend.web_uploads_bucket = MagicMock()
+    blob = MagicMock()
+    blob.download_as_bytes.return_value = bytes("Random Image", 'utf-8')
+    backend.web_uploads_bucket.get_blob.return_value = blob
+    assert backend.get_image("Random Image").getvalue() == io.BytesIO(bytes("Random Image", 'utf-8')).getvalue()
+
 
 
    
