@@ -4,8 +4,9 @@ from unittest import mock, TestCase
 from unittest.mock import Mock, MagicMock
 import hashlib
 import os
-
+from google.cloud.storage.blob import Blob
 from google.cloud import storage
+from flaskr.backend import Backend
 
 def test_sign_in_fail_user():
 
@@ -136,22 +137,26 @@ Cases to test for get_wiki_page:
     1. The page name is found, and the html file is returned
     2. The page name is not found, and nothing is returned
 """
+from unittest.mock import MagicMock
+
 def test_get_wiki_page():
-    back = backend.Backend()
+    # Create a mock backend object
+    backend = Backend()
+    backend.bucket = MagicMock()
+
+    # Create a mock blob object and set it as the return value of the bucket.get_blob method
     blob = MagicMock()
-    back.wiki_content_bucket = MagicMock()
-    back.wiki_content_bucket.return_value = blob
+    backend.bucket.get_blob.return_value = blob
 
-    html_name = "about.html"
+    # Test that the method returns the content of an existing page
+    page_name = "existing_page"
+    blob.download_as_text.return_value = "Page content"
+    assert backend.get_wiki_page(page_name) == "Page content"
 
-    result = back.get_wiki_page(html_name)
-
-    assert result == blob.Backend.get_wiki_page("about.html")
-
-    #Test 2
-    html_name = "fake_page.html"
-    result = back.get_wiki_page(html_name)
-    assert result == blob.Backend.get_wiki_page("fake_page.html")
+    # Test that the method returns None for a non-existent page
+    page_name = "non_existent_page"
+    backend.bucket.get_blob.return_value = None
+    assert backend.get_wiki_page(page_name) is None
 
 
    
