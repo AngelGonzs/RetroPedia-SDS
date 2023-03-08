@@ -45,7 +45,7 @@ def test_fetch_images(client):
 
 
 def test_page(client):
-    resp = client.get("/pages/super-mario-bros-1985")
+    resp = client.get("/pages/Super-Mario-Bros-1985")
     assert resp.status_code == 200
 
 
