@@ -67,6 +67,12 @@ def make_endpoints(app, backend):
         # Convert the URL-safe page path back to the original page name
         page_name = page_path.replace('-', ' ')
 
+        # Check if the page exists in the backend
+        if backend.get_wiki_page(page_name):
+            # Fetch the text associated with the page from the GCS content bucket and render the "page.html" template
+            text = fetch_page_text(page_name) # This is a function that retrieves the text for the specified page
+            return render_template("page.html", page_name = page_name, text = text)
+        
         # Check if the page name is "Super Mario Bros. (1985)" and render the appropriate template
         if page_name == "Super Mario Bros 1985":
             return render_template("super_mario_bros.html")
@@ -107,10 +113,6 @@ def make_endpoints(app, backend):
         if page_name == "GoldenEye 007 1997":
             return render_template("goldeneye.html")
 
-        # Fetch the text associated with the page from the GCS content bucket and render the "page.html" template
-        text = fetch_page_text(page_name) # This is a function that retrieves the text for the specified page
-        return render_template("page.html", page_name = page_name, text = text)
-
     @app.route("/pages")
     def page_index():
         # Fetch a list of pages from the GCS content bucket and render the "page_index.html" template
@@ -124,7 +126,7 @@ def make_endpoints(app, backend):
 
     def fetch_page_text(page_name):
         # Fetch the text associated with the page from the backend
-        text = backend.get_page_text(page_name)
+        text = backend.get_wiki_page(page_name)
         return text
 
 
