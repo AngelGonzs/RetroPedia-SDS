@@ -197,7 +197,7 @@ class Backend:
 
         if blob is not None:
             # Download the content from the blob
-            content = blob.download_as_string()
+            content = blob.download_as_bytes()
 
             # Return the content as bytes
             return io.BytesIO(content)
