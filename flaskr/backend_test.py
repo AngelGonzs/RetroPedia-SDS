@@ -9,6 +9,7 @@ from google.cloud.storage.blob import Blob
 from google.cloud import storage
 from flaskr.backend import Backend
 
+
 def test_sign_in_fail_user():
 
     back = backend.Backend()
@@ -25,8 +26,9 @@ def test_sign_in_fail_user():
     back.password_bucket.blob.return_value = blobX
     blobX.exists.return_value = False
 
-    result = back.sign_in(username,password)
+    result = back.sign_in(username, password)
     assert result == False
+
 
 def test_sign_in_pass():
 
@@ -44,14 +46,15 @@ def test_sign_in_pass():
     back.password_bucket.blob.return_value = blobX
     blobX.exists.return_value = True
 
-    
     fake_password = "wrong-password"
 
-    blobX.download_as_string.return_value = "46" +str(int(hashlib.sha256(fake_password.encode("utf-8")).hexdigest(),16)) + "9"
+    blobX.download_as_string.return_value = "46" + str(
+        int(hashlib.sha256(fake_password.encode("utf-8")).hexdigest(),
+            16)) + "9"
     # Have to hardcode the first 2 and last digit of the hashing because in the backend
     # the .download_as_string is returned as bytes and we index that later on to get the correct password.
 
-    result = back.sign_in(username,password)
+    result = back.sign_in(username, password)
     assert result == True
 
 
@@ -70,8 +73,7 @@ def test_sign_up_fail():
     # Here, we state that the username does exist, so the test will be False
     blobX.exists.return_value = True
 
-
-    result = back.sign_up(username,password)
+    result = back.sign_up(username, password)
     assert result == False
 
 
@@ -94,8 +96,9 @@ def test_sign_up_pass():
     # Set the blob.exists to False to indicate that the username is non-existing
     blobX.exists.return_value = False
 
-    result = back.sign_up(username,password)
+    result = back.sign_up(username, password)
     assert result == True
+
 
 def test_get_user_fail():
     back = backend.Backend()
@@ -110,6 +113,7 @@ def test_get_user_fail():
 
     result = back.get_user(username)
     assert result == False
+
 
 def test_get_user_pass():
     back = backend.Backend()
@@ -140,6 +144,7 @@ Cases to test for get_wiki_page:
 """
 from unittest.mock import MagicMock
 
+
 def test_get_wiki_page():
     # Create a mock backend object
     backend = Backend()
@@ -159,6 +164,7 @@ def test_get_wiki_page():
     backend.bucket.get_blob.return_value = None
     assert backend.get_wiki_page(page_name) is None
 
+
 def test_get_all_page_names():
     backend = Backend()
     backend.bucket = MagicMock()
@@ -169,6 +175,7 @@ def test_get_all_page_names():
     #Test if a valid page name is in the list
     backend.bucket.list_blobs.return_value = ["signup", "about"]
     assert "signup" in backend.get_all_page_names()
+
 
 def test_upload():
     backend = Backend()
@@ -186,8 +193,5 @@ def test_get_image():
     blob = MagicMock()
     blob.download_as_bytes.return_value = bytes("Random Image", 'utf-8')
     backend.web_uploads_bucket.get_blob.return_value = blob
-    assert backend.get_image("Random Image").getvalue() == io.BytesIO(bytes("Random Image", 'utf-8')).getvalue()
-
-
-
-   
+    assert backend.get_image("Random Image").getvalue() == io.BytesIO(
+        bytes("Random Image", 'utf-8')).getvalue()

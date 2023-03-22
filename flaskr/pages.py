@@ -7,6 +7,7 @@ import re
 import requests
 from flaskr.backend import Backend
 
+
 def make_endpoints(app, backend):
     backend = Backend()
     # Flask uses the "app.route" decorator to call methods when users
@@ -16,8 +17,8 @@ def make_endpoints(app, backend):
         # TODO(Checkpoint Requirement 2 of 3): Change this to use render_template
         # to render main.html on the home page.
 
-        greeting = "Welcome to RetroPedia! we're still working on the name" # adds a greeting to the wikipedia
-        return render_template("main.html", greeting = greeting)
+        greeting = "Welcome to RetroPedia! we're still working on the name"  # adds a greeting to the wikipedia
+        return render_template("main.html", greeting=greeting)
 
     # TODO(Project 1): Implement additional routes according to the project requirements.
 
@@ -40,7 +41,9 @@ def make_endpoints(app, backend):
         }
 
         # Modify the keys in the new_pages dictionary to make them URL-safe and append them to the pages list
-        pages += [re.sub(r'\W+', '-', page).strip('-') for page in new_pages.keys()]
+        pages += [
+            re.sub(r'\W+', '-', page).strip('-') for page in new_pages.keys()
+        ]
 
         # Create a list of user-friendly page names and zip them with the URL-safe page names
         pretty_page_names = []
@@ -70,9 +73,11 @@ def make_endpoints(app, backend):
         # Check if the page exists in the backend
         if backend.get_wiki_page(page_name):
             # Fetch the text associated with the page from the GCS content bucket and render the "page.html" template
-            text = fetch_page_text(page_name) # This is a function that retrieves the text for the specified page
-            return render_template("page.html", page_name = page_name, text = text)
-        
+            text = fetch_page_text(
+                page_name
+            )  # This is a function that retrieves the text for the specified page
+            return render_template("page.html", page_name=page_name, text=text)
+
         # Check if the page name is "Super Mario Bros. (1985)" and render the appropriate template
         if page_name == "Super Mario Bros 1985":
             return render_template("super_mario_bros.html")
@@ -123,12 +128,10 @@ def make_endpoints(app, backend):
         else:
             return render_template("page_index.html", pages=pages)
 
-
     def fetch_page_text(page_name):
         # Fetch the text associated with the page from the backend
         text = backend.get_wiki_page(page_name)
         return text
-
 
     @app.route('/image/<name>')
     def fetch_images(name):
@@ -152,11 +155,12 @@ def make_endpoints(app, backend):
             image_name = f"{name.lower().replace(' ', '_')}.jpg"
             img_bytes = backend.get_image(image_name)
             if img_bytes is not None:
-                author_images[name] = base64.b64encode(img_bytes.getvalue()).decode('utf-8')
+                author_images[name] = base64.b64encode(
+                    img_bytes.getvalue()).decode('utf-8')
 
         # Render the "about.html" template with the author images
         return render_template("about.html", author_images=author_images)
-    
+
     @app.route('/upload', methods=['GET', 'POST'])
     def upload_file():
         if request.method == 'POST':
@@ -176,10 +180,6 @@ def make_endpoints(app, backend):
         # Render the upload page template on GET requests
         return render_template('upload.html')
 
-
-
-
-
     # Ahead, we will work with the Flask Login
 
     login_manager = LoginManager(app)
@@ -194,7 +194,7 @@ def make_endpoints(app, backend):
             return user.User(user_ID)
         return None
 
-    @app.route('/login',methods = ["POST", "GET"])
+    @app.route('/login', methods=["POST", "GET"])
     def login():
 
         if request.method == "POST":
@@ -202,35 +202,34 @@ def make_endpoints(app, backend):
             user_ID = request.form["username"]
             user_password = request.form["password"]
 
-            if not user_ID or not user_password:            
-                flash("One or more fields haven't been filled, please do so to proceed")
+            if not user_ID or not user_password:
+                flash(
+                    "One or more fields haven't been filled, please do so to proceed"
+                )
                 return redirect(url_for('login'))
 
             successful_login = backend.sign_in(user_ID, user_password)
 
-            if successful_login: 
+            if successful_login:
                 # If the user is logged in successfully,
                 # we will log the user with Flask
 
                 new_user = user.User(user_ID)
                 login_user(new_user)
-                # Now that the user is logged in, 
+                # Now that the user is logged in,
                 # We can use current_user to refer
                 # to the user logged in
 
-                
                 flash('You were successfully logged in')
                 return redirect(url_for("home"))
-
 
             else:
                 # If the login isn't succesful, we should
                 # redirect the user to the login page and
                 # let them know that their was a mistake
-        
+
                 flash('Invalid email or password')
                 return redirect(url_for('login'))
-
 
         return render_template("login.html")
 
@@ -240,8 +239,7 @@ def make_endpoints(app, backend):
         logout_user()
         return redirect(url_for('home'))
 
-
-    @app.route("/signup", methods = ["POST", "GET"])
+    @app.route("/signup", methods=["POST", "GET"])
     def signup():
         if request.method == "POST":
 
@@ -249,8 +247,10 @@ def make_endpoints(app, backend):
             password = request.form["password"]
 
             # Check if either of the fields have not been filled
-            if not username or not password:            
-                flash("One or more fields haven't been filled, please do so to proceed")
+            if not username or not password:
+                flash(
+                    "One or more fields haven't been filled, please do so to proceed"
+                )
                 return render_template("signup.html")
 
             prefixed_password = "" + password

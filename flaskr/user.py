@@ -1,5 +1,6 @@
 from flask_login import UserMixin
 
+
 class User(UserMixin):
     """
     Simple user class that Inherits the UserMixin from Flask
@@ -15,8 +16,6 @@ class User(UserMixin):
 
     def __init__(self, ID):
         self.id = ID
-    
+
     def get_id(self):
         return self.id
-
-

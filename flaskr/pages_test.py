@@ -3,6 +3,7 @@ import os
 from flaskr import create_app
 import pytest
 
+
 # See https://flask.palletsprojects.com/en/2.2.x/testing/
 # for more info on testing
 @pytest.fixture
@@ -50,7 +51,11 @@ def test_page(client):
 
 
 def test_signup(client):
-    resp = client.post("/signup", data={"username": "test_user", "password": "test_password"})
+    resp = client.post("/signup",
+                       data={
+                           "username": "test_user",
+                           "password": "test_password"
+                       })
     assert resp.status_code == 302  # Redirect status code
 
 

@@ -4,10 +4,8 @@ import io
 import hashlib
 from flask import Flask, render_template
 
-
 # Initialize:
 app = Flask(__name__)
-
 
 
 class Backend:
@@ -39,7 +37,7 @@ class Backend:
 
         wiki_content_bucket - 
     """
-    
+
     def __init__(self):
         # Instantiate a new client for Cloud Storage
         self.web_uploads_client = storage.Client()
@@ -49,12 +47,11 @@ class Backend:
         self.web_uploads_bucket = self.web_uploads_client.bucket('web-uploads')
 
         # Get a reference to the wiki-content bucket
-        self.wiki_content_bucket = self.wiki_content_client.bucket('wiki-content-bucket')
-        
+        self.wiki_content_bucket = self.wiki_content_client.bucket(
+            'wiki-content-bucket')
+
         # Set the default bucket to wiki-content-bucket
         self.bucket = self.wiki_content_bucket
-
-
 
         # Initiate buckets and clients for `sign_in` and `sign_up` methods
 
@@ -75,7 +72,7 @@ class Backend:
                 page_names.append(page_name)
 
         return page_names
-    
+
     def get_wiki_page(self, page_name):
         # Get a reference to the blob that contains the content for the specified page
         blob = self.bucket.get_blob(f"{page_name}.txt")
@@ -95,8 +92,6 @@ class Backend:
         # Create a new blob in the web-uploads bucket and upload the file data
         blob = self.web_uploads_bucket.blob(file.filename)
         blob.upload_from_file(file)
-        
-
 
     def sign_up(self, username, password):
         """
@@ -118,12 +113,12 @@ class Backend:
             in which it will return `False` is if the username already exists, otherwise
             it will create the blob for the User and return True.
         
-        """  
+        """
         blob_name = username
         user_password = password
 
-        blob_contents = str(int(hashlib.sha256(user_password.encode("utf-8")).hexdigest(),16))
-
+        blob_contents = str(
+            int(hashlib.sha256(user_password.encode("utf-8")).hexdigest(), 16))
 
         # Ahead, we will check if a blob for the username already exists.
         blob_check = self.password_bucket.blob(blob_name)
@@ -138,10 +133,6 @@ class Backend:
             print("User succesfully created")
             return True
 
-        
-
-
-    
     def sign_in(self, username, password):
         """
         This is our method to authenticate the sign in process. It takes a username and a
@@ -163,24 +154,26 @@ class Backend:
             it will return False.
         
         """
-        
-     
+
         blob_name = username
         blob_check = self.password_bucket.blob(blob_name)
 
         if blob_check.exists():
-            
+
             # Get the hashed password to later compare it to the data inside the username blob
             user_password = password
-            hashed_password = str(int(hashlib.sha256(user_password.encode("utf-8")).hexdigest(),16))
-            
+            hashed_password = str(
+                int(
+                    hashlib.sha256(user_password.encode("utf-8")).hexdigest(),
+                    16))
 
             # We download the hashed password as a string, thus we must compare it as one
-            blob_contents = str(blob_check.download_as_string()) # REAL PASSWORD
+            blob_contents = str(
+                blob_check.download_as_string())  # REAL PASSWORD
             blob_contents = blob_contents[2:-1]
 
             if hashed_password == blob_contents:
-                #Everything good, welcome 
+                #Everything good, welcome
                 return True
 
             else:
@@ -205,10 +198,8 @@ class Backend:
         else:
             # If the blob does not exist, return None
             return None
-   
-                
-    def get_user(self, ID):
 
+    def get_user(self, ID):
         """
         This method serves as a helper for the `login_manager()` from Flask Login.
         It's purpose is to check if a user of a specific ID exists or not.
@@ -218,7 +209,7 @@ class Backend:
         
         Returns:
             Boolean which determines if the ID exists as a user or not.
-        """        
+        """
         blob_name = ID
         blob_check = self.password_bucket.blob(blob_name)
         return blob_check.exists()
