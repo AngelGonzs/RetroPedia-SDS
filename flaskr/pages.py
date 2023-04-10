@@ -110,14 +110,6 @@ def make_endpoints(app, backend):
         if page_name == "Street Fighter II 1991":
             return render_template("street_fighter.html")
 
-        # Check if the page name is "Final Fantasy VII (1997)" and render the appropriate template
-        if page_name == "Final Fantasy VII 1997":
-            return render_template("final_fantasy.html")
-
-        # Check if the page name is "GoldenEye 007 (1997)" and render the appropriate template
-        if page_name == "GoldenEye 007 1997":
-            return render_template("goldeneye.html")
-
     @app.route("/pages")
     def page_index():
         # Fetch a list of pages from the GCS content bucket and render the "page_index.html" template

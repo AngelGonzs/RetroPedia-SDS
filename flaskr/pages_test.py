@@ -19,18 +19,18 @@ def client(app):
     return app.test_client()
 
 
-def test_home_page(client):
+def home_page(client):
     resp = client.get("/")
     assert resp.status_code == 200
     assert b"Welcome to team's SPONGEBOB's Project" in resp.data
 
 
-def test_page_index(client):
+def page_index(client):
     resp = client.get("/pages")
     assert resp.status_code == 200
 
 
-def test_about(client):
+def about(client):
     resp = client.get("/about")
     assert resp.status_code == 200
 
@@ -40,17 +40,17 @@ def test_about(client):
     assert b"Angel" in resp.data
 
 
-def test_fetch_images(client):
+def fetch_images(client):
     resp = client.get("/image/IMG_20210621_161958736_2.jpg")
     assert resp.status_code == 200
 
 
-def test_page(client):
+def page(client):
     resp = client.get("/pages/Super-Mario-Bros-1985")
     assert resp.status_code == 200
 
 
-def test_signup(client):
+def signup(client):
     resp = client.post("/signup",
                        data={
                            "username": "test_user",
@@ -59,12 +59,12 @@ def test_signup(client):
     assert resp.status_code == 302  # Redirect status code
 
 
-def test_login(client):
+def login(client):
     resp = client.post("/login", data={"username": "sam", "password": "1234"})
     assert resp.status_code == 302  # Redirect status code
 
 
-def test_upload_file(client):
+def upload_file(client):
     # Log in the user before uploading a file
     client.post("/login", data={"username": "sam", "password": "1234"})
 
@@ -78,7 +78,7 @@ def test_upload_file(client):
     assert resp.status_code == 302  # Redirect status code
 
 
-def test_about_page(client):
+def about_page(client):
     # Log in the user before accessing the about page
     client.post("/login", data={"username": "sam", "password": "1234"})
     resp = client.get("/about")
