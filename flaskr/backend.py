@@ -58,6 +58,11 @@ class Backend:
         self.user_client = storage.Client()
         self.password_bucket = self.user_client.bucket("passwords-bucket")
 
+
+        # Create a bucket for the images-bucket
+        self.images_client = storage.Client()
+        self.images_bucket = self.images_client.bucket('img__bucket')
+
     def get_all_page_names(self):
         # List all the blobs in the wiki-content bucket
         blobs = self.bucket.list_blobs()
@@ -66,9 +71,9 @@ class Backend:
         page_names = []
         for blob in blobs:
             # Ignore blobs that are not files (i.e., folders)
-            if not blob.endswith('/'):
+            if not blob.name.endswith('/'):
                 # Extract the page name from the blob name (remove the file extension)
-                page_name = blob.split('.')[0]
+                page_name = blob.name.split('.')[0]
                 page_names.append(page_name)
 
         return page_names
@@ -88,10 +93,26 @@ class Backend:
             # If the blob does not exist, return None
             return None
 
+    def get_wiki_image(self, image_name):
+
+        blob = self.web_uploads_bucket.get_blob(image_name)
+
+        if blob:
+            image = blob.public_url
+            return image
+
+        return None
+
     def upload(self, file):
         # Create a new blob in the web-uploads bucket and upload the file data
-        blob = self.web_uploads_bucket.blob(file.filename)
+        blob = self.bucket.blob(file.filename)
         blob.upload_from_file(file)
+
+    # This will be used solely for upload image-type files, the method
+    # above should then be used to only upload text-type files 
+    def upload_image(self, image):
+        blob = self.images_bucket.blob(image.filename)
+        blob.upload_from_file(image)
 
     def sign_up(self, username, password):
         """
@@ -186,7 +207,7 @@ class Backend:
 
     def get_image(self, name):
         # Get a reference to the blob that contains the image data
-        blob = self.web_uploads_bucket.get_blob(name)
+        blob = self.images_bucket.get_blob(name)
 
         if blob is not None:
             # Download the content from the blob

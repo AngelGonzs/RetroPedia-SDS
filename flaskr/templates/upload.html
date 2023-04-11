@@ -8,11 +8,28 @@
 <body>
     {% block content %}
     <h1>Upload a File to the Wiki</h1>
+
+    <!-- Here we upload a NON-OPTIONAL wikipage -->
     <form method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: row; align-items: center;">
-        <label style="margin-right: 10px;">Select a file:</label>
+        
+        <input type="text" name="wikiname" placeholder="wikiname" style="margin-right: 3px;"/>
         <input type="file" name="file" accept=".txt,.pdf,.doc,.docx,image/*" style="margin-right: 10px;">
+
+        <label for "image" class="image-label" > Upload Image (optional) </label>
+        <input type="file" name="image" accept="image/*" id = "image">
+
         <input type="submit" value="Upload">
+
     </form>
+
+    <!-- Here we upload an optional image -->
+    <!-- <form method = "POST" class="image-form">
+        <label for "image" class="image-label" > Upload Image (optional) </label>
+        <input type="file" name="image" accept="image/*" id = "image">
+        <input type="submit" value="Upload" style="margin-left: 6px;">
+
+
+    </form> -->
     {% endblock %}
 </body>
 

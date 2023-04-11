@@ -1,4 +1,8 @@
 <html>
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/static/style.css" />
+    </head>
     <body>
         
         <div>
@@ -31,7 +35,14 @@
 
 
         </div>
+
+        <!-- This block will be the general text of the page -->
         {% block content %}
         {% endblock %}
+
+        <!-- This block will be for the text rendered in the image (if it has one) -->
+        {% block image %}
+        {% endblock %}
+
     </body>
 </html>
