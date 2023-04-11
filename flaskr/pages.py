@@ -79,7 +79,7 @@ def make_endpoints(app, backend):
             """
             text = fetch_page_text(page_name) 
 
-            image_name = page_name + ".webp"
+            image_name = page_name
             if backend.get_wiki_image(image_name):
                 # Try the code below with both `get_wiki_image` and `get_image`
                 image = backend.get_wiki_image(image_name)

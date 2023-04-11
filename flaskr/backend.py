@@ -95,11 +95,15 @@ class Backend:
 
     def get_wiki_image(self, image_name):
 
-        blob = self.web_uploads_bucket.get_blob(image_name)
+        accepted_extensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp']
 
-        if blob:
-            image = blob.public_url
-            return image
+        for extension in accepted_extensions:
+            blob = self.web_uploads_bucket.get_blob(image_name + extension)
+
+
+            if blob:
+                image = blob.public_url
+                return image
 
         return None
 
@@ -111,7 +115,7 @@ class Backend:
     # This will be used solely for upload image-type files, the method
     # above should then be used to only upload text-type files 
     def upload_image(self, image):
-        blob = self.images_bucket.blob(image.filename)
+        blob = self.web_uploads_bucket.blob(image.filename)
         blob.upload_from_file(image)
 
     def sign_up(self, username, password):

@@ -195,3 +195,52 @@ def test_get_image():
     backend.web_uploads_bucket.get_blob.return_value = blob
     assert backend.get_image("Random Image").getvalue() == io.BytesIO(
         bytes("Random Image", 'utf-8')).getvalue()
+
+
+# Testing new methods that were used for my feature : Hover Display
+
+
+def test_upload_image():
+
+    back = backend.Backend()
+    blobX = MagicMock()
+
+    image = MagicMock()
+    image.filename.return_value = "image_name"
+
+    back.web_uploads_bucket = MagicMock()
+    back.web_uploads_bucket.blob.return_value = blobX
+    back.web_uploads_bucket.blob("image_name").return_value = "Hi!"
+
+    back.upload_image(image)
+    result = back.web_uploads_bucket.blob("image_name")
+
+    print("PRINTING MOCK TEST",result)
+
+    assert result != "image_name"
+
+
+
+def test_get_wiki_image():
+
+
+    back = backend.Backend()
+
+    # In the web_uploads bucket, there is already an image called `12345.jpeg`
+    # We will make it so that trying to get that image will not work.
+
+    # public url to the mentioned image
+    public_url = "https://storage.cloud.google.com/web-uploads/12345.jpeg?authuser=5"    
+
+
+    back.get_wiki_image = MagicMock()
+    back.get_wiki_image.return_value = "None"
+
+
+    result = back.get_wiki_image("12345")
+
+    assert result != public_url
+
+    # It will actually be == "None"
+
+
