@@ -5,6 +5,7 @@ from flask import Response
 import base64
 import re
 import requests
+from flask import abort
 from flaskr.backend import Backend
 
 
@@ -259,3 +260,54 @@ def make_endpoints(app, backend):
                 return redirect(url_for("signup"))
 
         return render_template("signup.html")
+
+    @app.route('/create-page', methods=['GET', 'POST'])
+    @login_required
+    def create_page():
+        if request.method == 'POST':
+            page_name = request.form['page_name']
+            content = request.form['content']
+
+            backend = Backend()
+            backend.create_wiki_page(page_name, content)
+
+            return redirect(url_for('page', page_path=page_name.replace(' ', '-')))
+
+        return render_template('create_page.html')
+
+    @app.route('/pages/<page_name>/edit', methods=['GET', 'POST'])
+    @login_required
+    def edit_page(page_name):
+        #page = Page.query.filter_by(name=page_name).first_or_404()
+
+        if request.method == 'POST':
+            page.content = request.form['page_content']
+           # db.session.commit()
+            flash('Page updated successfully!', 'success')
+            return redirect(url_for('view_page', page_name=page_name))
+
+        return render_template('edit_page.html', page_name=page_name, page_content=page.content)
+
+
+    @app.route('/delete-page/<page_name>', methods=['GET', 'POST'])
+    @login_required
+    def delete_page(page_name):
+        backend = Backend()
+        if request.method == 'POST':
+            backend.delete_wiki_page(page_name)
+            return redirect(url_for('home'))
+        else:
+            return render_template('delete_page.html', page_name=page_name)
+
+    @app.route('/wiki/<path:page_path>')
+    def view_page(page_path):
+        # Get the content of the page
+        content = backend.get_wiki_page(page_path)
+
+        # If the page doesn't exist, return a 404 error
+        if content is None:
+            abort(404)
+
+        # Pass the page_name to the template
+        page_name = page_path.split('/')[-1].replace('-', ' ')
+        return render_template('view_page.html', content=content, page_name=page_name)

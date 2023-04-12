@@ -58,6 +58,47 @@ class Backend:
         self.user_client = storage.Client()
         self.password_bucket = self.user_client.bucket("passwords-bucket")
 
+
+    def create_wiki_page(self, page_name, content):
+        # Create a new blob in the wiki-content bucket with the provided page_name
+        blob = self.wiki_content_bucket.blob(f"{page_name}.txt")
+
+        # Set the content of the blob to the provided content
+        blob.upload_from_string(content)
+
+        # Return the name of the newly created page
+        return page_name
+
+    def update_wiki_page(self, page_name, content):
+        # Get a reference to the blob that contains the content for the specified page
+        blob = self.bucket.get_blob(f"{page_name}.txt")
+
+        if blob is not None:
+            # Update the content of the blob with the provided content
+            blob.upload_from_string(content)
+
+            # Return the name of the updated page
+            return page_name
+
+        else:
+            # If the blob does not exist, return None
+            return None
+
+    def delete_wiki_page(self, page_name):
+        # Get a reference to the blob that contains the content for the specified page
+        blob = self.bucket.get_blob(f"{page_name}.txt")
+
+        if blob is not None:
+            # Delete the blob
+            blob.delete()
+
+            # Return the name of the deleted page
+            return page_name
+
+        else:
+            # If the blob does not exist, return None
+            return None
+
     def get_all_page_names(self):
         # List all the blobs in the wiki-content bucket
         blobs = self.bucket.list_blobs()
