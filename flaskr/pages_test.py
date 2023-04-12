@@ -2,7 +2,10 @@ import io
 import os
 from flaskr import create_app
 import pytest
+from flaskr.pages import Backend
 
+
+backend = Backend()
 
  
 # See https://flask.palletsprojects.com/en/2.2.x/testing/
@@ -84,3 +87,19 @@ def about_page(client):
     client.post("/login", data={"username": "sam", "password": "1234"})
     resp = client.get("/about")
     assert resp.status_code == 200
+
+def test_create_page(client):
+    # Log in the user before creating an article
+    client.post("/login", data={"username": "sam", "password": "1234"})
+
+    # Create a new article
+    title = "Test Article"
+    content = "This is a test article."
+    author = "sam"
+    resp = client.post("/pages/create", data={"title": title, "content": content, "author": author})
+
+    # Check that the article was created
+    assert resp.status_code == 302
+    assert backend.get_wiki_page(title) == content
+
+    

@@ -59,7 +59,7 @@ class Backend:
         self.password_bucket = self.user_client.bucket("passwords-bucket")
 
 
-    def create_wiki_page(self, page_name, content):
+    def create_wiki_page(self, page_name, content, author=None):
         # Create a new blob in the wiki-content bucket with the provided page_name
         blob = self.wiki_content_bucket.blob(f"{page_name}.txt")
 

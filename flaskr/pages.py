@@ -9,6 +9,7 @@ from flask import abort
 from flaskr.backend import Backend
 
 
+
 def make_endpoints(app, backend):
     backend = Backend()
     # Flask uses the "app.route" decorator to call methods when users
@@ -261,18 +262,22 @@ def make_endpoints(app, backend):
 
         return render_template("signup.html")
 
-    @app.route('/create-page', methods=['GET', 'POST'])
+    @app.route('/pages/create', methods=['GET', 'POST'])
     @login_required
     def create_page():
         if request.method == 'POST':
-            page_name = request.form['page_name']
+            # Get the page data from the form
+            title = request.form['title']
             content = request.form['content']
+            author = request.form['author']
 
-            backend = Backend()
-            backend.create_wiki_page(page_name, content)
+            # Create the page in the backend
+            backend.create_wiki_page(title, content, author)
 
-            return redirect(url_for('page', page_path=page_name.replace(' ', '-')))
+            # Redirect to the newly created page
+            return redirect(url_for('page', page_path=title.replace(' ', '-')))
 
+        # Render the page creation form on GET requests
         return render_template('create_page.html')
 
     @app.route('/pages/<page_name>/edit', methods=['GET', 'POST'])
