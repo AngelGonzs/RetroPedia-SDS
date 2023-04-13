@@ -1,4 +1,16 @@
 {% block content %}
+    {% if current_user.is_authenticated %}
+    <div class="container">
+        <button type="button">Add to Favorites</button>
+        <h1>Donkey Kong (1981)</h1>
+        <hr>
+        {% include "nav_bar.html" %}
+        <hr>
+        <p>Donkey Kong is an arcade game developed and published by Nintendo in 1981. It was designed by Shigeru Miyamoto and Gunpei Yokoi, and it follows the adventures of a carpenter named Mario as he tries to rescue his girlfriend Pauline from the giant gorilla Donkey Kong.</p>
+        <p>The game consists of four different levels, each of which is split into several different stages. In each stage, Mario must climb up ladders and avoid obstacles such as barrels, fireballs, and bouncing rivets in order to reach Pauline at the top.</p>
+        <p>Donkey Kong was a huge commercial success and helped establish Nintendo as a major player in the video game industry. It was also one of the first games to feature a storyline and a memorable character in Donkey Kong himself.</p>
+    </div>
+    {%else%}
     <div class="container">
         <h1>Donkey Kong (1981)</h1>
         <hr>
