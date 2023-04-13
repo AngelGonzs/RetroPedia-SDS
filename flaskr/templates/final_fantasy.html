@@ -1,7 +1,9 @@
 {% block content %}
     {% if current_user.is_authenticated %}
     <div class="container">
-        <button type="button">Add to Favorites</button>
+        <form action="/add-to-favs/">
+            <input type="submit" name = "add_to_favorites" value="Add to Favorites FF" />
+        </form>
         <h1>Final Fantasy VII (1997)</h1>
         <hr>
         {% include "nav_bar.html" %}
