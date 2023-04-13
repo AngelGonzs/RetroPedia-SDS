@@ -66,9 +66,9 @@ class Backend:
         page_names = []
         for blob in blobs:
             # Ignore blobs that are not files (i.e., folders)
-            if not blob.endswith('/'):
+            if not blob.name.endswith('/'):
                 # Extract the page name from the blob name (remove the file extension)
-                page_name = blob.split('.')[0]
+                page_name = blob.name.split('.')[0]
                 page_names.append(page_name)
 
         return page_names
