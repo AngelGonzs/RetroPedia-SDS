@@ -259,6 +259,3 @@ def make_endpoints(app, backend):
                 return redirect(url_for("signup"))
 
         return render_template("signup.html")
-
-
-        
