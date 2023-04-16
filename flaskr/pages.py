@@ -80,35 +80,35 @@ def make_endpoints(app, backend):
 
         # Check if the page name is "Super Mario Bros. (1985)" and render the appropriate template
         if page_name == "Super Mario Bros 1985":
-            return render_template("super_mario_bros.html")
+            return render_template("super_mario_bros.html", page_name=page_name)
 
         # Check if the page name is "Pac-Man (1980)" and render the appropriate template
         if page_name == "PacMan 1980":
-            return render_template("pac_man.html")
+            return render_template("pac_man.html", page_name=page_name)
 
         # Check if the page name is "Tetris (1984)" and render the appropriate template
         if page_name == "Tetris 1984":
-            return render_template("tetris.html")
+            return render_template("tetris.html", page_name=page_name)
 
         # Check if the page name is "Donkey Kong (1981)" and render the appropriate template
         if page_name == "Donkey Kong 1981":
-            return render_template("donkey_kong.html")
+            return render_template("donkey_kong.html", page_name=page_name)
 
         # Check if the page name is "Space Invaders (1978)" and render the appropriate template
         if page_name == "Space Invaders 1978":
-            return render_template("space_invaders.html")
+            return render_template("space_invaders.html", page_name=page_name)
 
         # Check if the page name is "The Legend of Zelda (1986)" and render the appropriate template
         if page_name == "The Legend of Zelda 1986":
-            return render_template("zelda.html")
+            return render_template("zelda.html", page_name=page_name)
 
         # Check if the page name is "Sonic the Hedgehog (1991)" and render the appropriate template
         if page_name == "Sonic the Hedgehog 1991":
-            return render_template("sonic.html")
+            return render_template("sonic.html",  page_name=page_name)
 
         # Check if the page name is "Street Fighter II (1991)" and render the appropriate template
         if page_name == "Street Fighter II 1991":
-            return render_template("street_fighter.html")
+            return render_template("street_fighter.html", page_name=page_name)
 
     @app.route("/pages")
     def page_index():
@@ -259,3 +259,6 @@ def make_endpoints(app, backend):
                 return redirect(url_for("signup"))
 
         return render_template("signup.html")
+    @app.route("/add-to-favs", methods=["POST", "GET"])
+    def add_to_favorties():
+        pass
