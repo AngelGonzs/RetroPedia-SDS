@@ -2,12 +2,13 @@
     <body>
         
         <div>
-            <!-- This will be the navbar for Logged Out Users -->
+            <!-- This will be the navbar for Logged In Users, includes logout and favorites -->
             {% if current_user.is_authenticated %}
             <ul class="nav-list">
                 <li style="display: inline-block; margin-left: 5px; margin-right: 5px;"><a href="{{ url_for('home') }}">Home</a></li>
                 <li style="display: inline-block; margin-left: 5px; margin-right: 5px;"><a href="{{ url_for('page_index') }}">Pages</a></li>
                 <li style="display: inline-block; margin-left: 5px; margin-right: 5px;"><a href="{{ url_for('about') }}">About</a></li>
+                <li style="display: inline-block; margin-left: 5px; margin-right: 5px;"><a href="{{ url_for('favorites') }}">Favorites</a></li>
                 <li style="display: inline-block; margin-left: 5px; margin-right: 5px;">|</li>
                 <li style="display: inline-block; margin-left: 5px; margin-right: 5px;"> {{current_user.get_id()}} </li>
                 <li style="display: inline-block; margin-left: 5px; margin-right: 5px;">|</li>
@@ -15,6 +16,7 @@
                 <li style="display: inline-block; margin-left: 5px; margin-right: 5px;"><a href="{{ url_for('logout') }}">Logout</a></li>
             </ul>
             {% else %}
+            <!-- Navbar for users that haven't logged in or signed up, includes login and signup.  -->
             <ul class="nav-list">
                 <li style="display: inline-block; margin-left: 5px; margin-right: 5px;"><a href="{{ url_for('home') }}">Home</a></li>
                 <li style="display: inline-block; margin-left: 5px; margin-right: 5px;"><a href="{{ url_for('page_index') }}">Pages</a></li>

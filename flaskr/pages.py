@@ -259,3 +259,25 @@ def make_endpoints(app, backend):
                 return redirect(url_for("signup"))
 
         return render_template("signup.html")
+
+# ------------------New Project #2 Features : F2 - R5 ------------------------------
+
+    @app.route("/favorites")
+    def favorites():
+        
+
+        """
+        IDEA:
+
+            Have a backend method search for all the favorite pages from a User,
+            once this is done, we receive a list of their favorite pages and 
+            render them in a similar manner to what is done in `pages_index`.
+
+            For this, we must have a way to check each user's favorites from
+            our buckets, since every user will have different favorites, but
+            by default they won't have any.
+        
+        """
+
+        return render_template("favorites.html")
+        
