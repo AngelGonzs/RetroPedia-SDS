@@ -259,7 +259,7 @@ def make_endpoints(app, backend):
                 return redirect(url_for("signup"))
 
         return render_template("signup.html")
-    @app.route("/<page_path>", methods=["POST", "GET"])
+    @app.route("/pages/<page_path>", methods=["POST", "GET"])
     @login_required
     def add_to_favorties(page_path):
         backend = Backend()
@@ -269,6 +269,6 @@ def make_endpoints(app, backend):
             print("add_to_favorites method was ran")
             flash("Page added to favorites!")
             return redirect(url_for('home'))
-        return redirect(url_for(page_path))
+        return redirect(url_for('page' , page_path = page_path))
                         
         
