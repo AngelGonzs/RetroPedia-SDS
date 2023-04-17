@@ -7,7 +7,7 @@
 
 <body>
     {% block content %}
-    <h1>Upload a File to the Wiki</h1>
+    <h1 class="page-title">Upload a File to the Wiki</h1>
 
     <!-- Here we upload a NON-OPTIONAL wikipage -->
     <form method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: row; align-items: center;">
@@ -15,7 +15,7 @@
         <input type="text" name="wikiname" placeholder="wikiname" style="margin-right: 3px;"/>
         <input type="file" name="file" accept=".txt,.pdf,.doc,.docx,image/*" style="margin-right: 10px;">
 
-        <label for "image" class="image-label" > Upload Image (optional) </label>
+        <label for "image" class="label-text" > Upload Image (optional)  </label>
         <input type="file" name="image" accept="image/*" id = "image">
 
         <input type="submit" value="Upload">
