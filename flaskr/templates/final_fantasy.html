@@ -1,7 +1,7 @@
 {% block content %}
     {% if current_user.is_authenticated %}
     <div class="container">
-        <form action="/add-to-favs/">
+        <form method = "POST" action="{{url_for('page', page_path = page_path)}}">
             <input type="submit" name = "add_to_favorites" value="Add to Favorites" id="add_to_favorites_ff" />
         </form>
         <h1>Final Fantasy VII (1997)</h1>

@@ -214,11 +214,18 @@ class Backend:
         blob_check = self.password_bucket.blob(blob_name)
         return blob_check.exists()
     
-    def add_to_favorties(self):
+    def add_to_favorties(self, page_name, username):
         """
         This method will add the current page to the user's favorite bucket when the button "Add to Favorites" is clicked
 
         """
-        favorites_bucket = self.user_client.bucket(self.password_bucket.name + "-favorites")
-        
-        
+        favorites_bucket = self.user_client.bucket(username + "-favorites")
+        if favorites_bucket is None:
+            #Creates the favorites bucket for the user
+            bucket = self.user_client.bucket(username + "-favorites")
+            user_bucket = self.user_client.create_bucket(bucket, location="us")
+            #Creating a blob with the pages name in it, to be used in the future to grab the url information, and adds it to the bucket.
+            user_bucket.blob(page_name)
+        else:
+            #If the user already has a bucket, add the page to the bucket     
+            favorites_bucket.blob(page_name)            
