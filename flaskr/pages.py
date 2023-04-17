@@ -81,7 +81,6 @@ def make_endpoints(app, backend):
 
             image_name = page_name
             if backend.get_wiki_image(image_name):
-                # Try the code below with both `get_wiki_image` and `get_image`
                 image = backend.get_wiki_image(image_name)
                 image_text = ""
 
@@ -134,7 +133,7 @@ def make_endpoints(app, backend):
 
         # if we're given a non-existing page name, just send back to the index
 
-        #  <code> 
+        return redirect(url_for("page_index"))
 
 
     @app.route("/pages")
@@ -212,8 +211,8 @@ def make_endpoints(app, backend):
                 backend.upload_image(image_file)
 
 
-            # Redirect to the upload page after the upload is complete
-            return redirect(url_for('upload_file'))
+            # Redirect to the home page after the upload is complete
+            return redirect(url_for('home'))
 
 
         # Render the upload page template on GET requests
@@ -316,6 +315,7 @@ def make_endpoints(app, backend):
 # ------------------New Project #2 Features : F2 - R5 ------------------------------
 
     @app.route("/favorites")
+    @login_required
     def favorites():
         
 

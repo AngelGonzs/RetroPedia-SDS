@@ -109,6 +109,9 @@ class Backend:
 
     def upload(self, file):
         # Create a new blob in the web-uploads bucket and upload the file data
+
+        # Make sure that the blob doesn't already exist, or should this be allowed as to update pages?
+
         blob = self.bucket.blob(file.filename)
         blob.upload_from_file(file)
 
