@@ -4,15 +4,7 @@
         <form method="POST" action="{{url_for('page', page_path = page_path)}}">
             <input type="submit" name = "add_to_favorites" value="Add to Favorites" id="add_to_favorites_z" />
         </form>
-        <h1>The Legend of Zelda (1986)</h1>
-        <hr>
-        {% include "nav_bar.html" %}
-        <hr>
-        <p>The Legend of Zelda is an action-adventure game developed and published by Nintendo for the NES console in 1986. It was designed by Shigeru Miyamoto and Takashi Tezuka, and it follows the adventure of a young boy named Link as he tries to rescue Princess Zelda and defeat the evil Ganon.</p>
-        <p>The game was one of the first to feature a battery-backed save system, allowing players to save their progress and continue their game later. It was also one of the first to use a non-linear gameplay style, with players being able to explore the game's world in any order they choose.</p>
-        <p>The Legend of Zelda has become one of Nintendo's most iconic franchises, with numerous sequels and spin-off titles released over the years. The series has also been adapted into a television show, comic book series, and a number of other media.</p>
-    </div>
-    {%else%}
+    {% endif %}
     <div class="container">
         <h1>The Legend of Zelda (1986)</h1>
         <hr>
@@ -22,6 +14,5 @@
         <p>The game was one of the first to feature a battery-backed save system, allowing players to save their progress and continue their game later. It was also one of the first to use a non-linear gameplay style, with players being able to explore the game's world in any order they choose.</p>
         <p>The Legend of Zelda has become one of Nintendo's most iconic franchises, with numerous sequels and spin-off titles released over the years. The series has also been adapted into a television show, comic book series, and a number of other media.</p>
     </div>
-    {% endif %}
 {% endblock %}
 
