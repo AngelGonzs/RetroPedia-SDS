@@ -169,18 +169,25 @@ def test_get_all_page_names():
     backend = Backend()
     backend.bucket = MagicMock()
 
-    blob = MagicMock()
-    backend.bucket.blob.return_value = blob
 
+    blob = MagicMock()
+    name = MagicMock()
+
+    backend.bucket.blob.return_value = blob
+    blob.name.return_value = name
+    blob.name = "signup"
+    
+    
     #Test if a valid page name is in the list
-    backend.bucket.list_blobs.return_value = ["signup", "about"]
-    assert "signup" in backend.get_all_page_names()
+    backend.bucket.list_blobs.return_value = [blob, blob]
+    result = backend.get_all_page_names()
+    first_blob = result[0]
+    assert "signup" in first_blob
 
 
 def test_upload():
     backend = Backend()
     backend.bucket = MagicMock()
-
     blob = MagicMock()
     blob.upload("Mario.html")
     assert blob.upload.called
@@ -189,10 +196,14 @@ def test_upload():
 def test_get_image():
     backend = Backend()
     backend.bucket = MagicMock()
-    backend.web_uploads_bucket = MagicMock()
+    backend.images_bucket = MagicMock()
     blob = MagicMock()
+
+
     blob.download_as_bytes.return_value = bytes("Random Image", 'utf-8')
-    backend.web_uploads_bucket.get_blob.return_value = blob
+    backend.images_bucket.get_blob.return_value = blob
+
+
     assert backend.get_image("Random Image").getvalue() == io.BytesIO(
         bytes("Random Image", 'utf-8')).getvalue()
 
