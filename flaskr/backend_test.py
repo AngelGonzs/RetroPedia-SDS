@@ -169,18 +169,25 @@ def test_get_all_page_names():
     backend = Backend()
     backend.bucket = MagicMock()
 
-    blob = MagicMock()
-    backend.bucket.blob.return_value = blob
 
+    blob = MagicMock()
+    name = MagicMock()
+
+    backend.bucket.blob.return_value = blob
+    blob.name.return_value = name
+    blob.name = "signup"
+    
+    
     #Test if a valid page name is in the list
-    backend.bucket.list_blobs.return_value = ["signup", "about"]
-    assert "signup" in backend.get_all_page_names()
+    backend.bucket.list_blobs.return_value = [blob, blob]
+    result = backend.get_all_page_names()
+    first_blob = result[0]
+    assert "signup" in first_blob
 
 
 def test_upload():
     backend = Backend()
     backend.bucket = MagicMock()
-
     blob = MagicMock()
     blob.upload("Mario.html")
     assert blob.upload.called
@@ -189,10 +196,14 @@ def test_upload():
 def test_get_image():
     backend = Backend()
     backend.bucket = MagicMock()
-    backend.web_uploads_bucket = MagicMock()
+    backend.images_bucket = MagicMock()
     blob = MagicMock()
+
+
     blob.download_as_bytes.return_value = bytes("Random Image", 'utf-8')
-    backend.web_uploads_bucket.get_blob.return_value = blob
+    backend.images_bucket.get_blob.return_value = blob
+
+
     assert backend.get_image("Random Image").getvalue() == io.BytesIO(
         bytes("Random Image", 'utf-8')).getvalue()
 
@@ -211,5 +222,51 @@ def test_add_to_favorties():
     backend.add_to_favorties(page_name, username)
     backend.user_client.bucket(username + "-favorites").blob.return_value = blob
     assert backend.user_client.bucket(username + "-favorites").blob(page_name) != None
+
+# Testing new methods that were used for my feature : Hover Display
+
+
+def test_upload_image():
+
+    back = backend.Backend()
+    blobX = MagicMock()
+
+    image = MagicMock()
+    image.filename.return_value = "image_name"
+
+    back.web_uploads_bucket = MagicMock()
+    back.web_uploads_bucket.blob.return_value = blobX
+    back.web_uploads_bucket.blob("image_name").return_value = "Hi!"
+
+    back.upload_image(image)
+    result = back.web_uploads_bucket.blob("image_name")
+
+    print("PRINTING MOCK TEST",result)
+
+    assert result != "image_name"
+
+
+
+def test_get_wiki_image():
+
+
+    back = backend.Backend()
+
+    # In the web_uploads bucket, there is already an image called `12345.jpeg`
+    # We will make it so that trying to get that image will not work.
+
+    # public url to the mentioned image
+    public_url = "https://storage.cloud.google.com/web-uploads/12345.jpeg?authuser=5"    
+
+
+    back.get_wiki_image = MagicMock()
+    back.get_wiki_image.return_value = "None"
+
+
+    result = back.get_wiki_image("12345")
+
+    assert result != public_url
+
+    # It will actually be == "None"
 
 

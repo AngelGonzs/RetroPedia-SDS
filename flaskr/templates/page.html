@@ -5,7 +5,51 @@
 {% endblock %}
 
 {% block content %}
-    <h1>{{ page_name }}</h1>
+    <h1 class="page-title"> {{ page_name }}</h1>
     <hr>
-    <div>{{ text }}</div>
+    <div>
+
+        <p class="page-text">{{ text }}</p>
+    </div>
 {% endblock %}
+
+
+
+{% block image %}
+
+<!-- If we DO have an image -->
+{% if image_passed %}
+
+    <div class="image">
+
+        <img class = "image__img" src={{image}}>
+
+        <div class = "image__overlay">
+
+            <div class="image__title">
+                {{page_name}}
+            </div>
+
+            <p class="image_desc">
+                {{image_text}}
+
+            </p>
+
+        </div>
+
+    </div>
+
+{% endif %}
+<!-- If we do NOT then nothing will be rendered in it's part. -->
+
+
+{% endblock %}
+
+
+
+
+
+
+
+
+

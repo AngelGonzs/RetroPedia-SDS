@@ -20,7 +20,7 @@ def make_endpoints(app, backend):
         greeting = "Welcome to RetroPedia! we're still working on the name"  # adds a greeting to the wikipedia
         return render_template("main.html", greeting=greeting)
 
-    # TODO(Project 1): Implement additional routes according to the project requirements.
+
 
     def fetch_pages():
         # Fetch the list of page names from the backend
@@ -72,11 +72,24 @@ def make_endpoints(app, backend):
 
         # Check if the page exists in the backend
         if backend.get_wiki_page(page_name):
-            # Fetch the text associated with the page from the GCS content bucket and render the "page.html" template
-            text = fetch_page_text(
-                page_name
-            )  # This is a function that retrieves the text for the specified page
-            return render_template("page.html", page_name=page_name, text=text)
+
+            """
+            Fetch the text associated with the page from the GCS content bucket and render the "page.html" template
+            This essentially just calls `text = backend.get_wiki_page(page_name)` to get the contents of that page.
+            """
+            text = fetch_page_text(page_name) 
+
+            image_name = page_name
+            if backend.get_wiki_image(image_name):
+                image = backend.get_wiki_image(image_name)
+                image_text = ""
+
+
+                return render_template("page.html", page_name=page_name, text = text, image = image, image_text = image_text, image_passed = True)
+
+
+
+            return render_template("page.html", page_name=page_name, text=text, image = None, image_passed = False)
 
         # Check if the page name is "Super Mario Bros. (1985)" and render the appropriate template
         if page_name == "Super Mario Bros 1985":
@@ -109,6 +122,19 @@ def make_endpoints(app, backend):
         # Check if the page name is "Street Fighter II (1991)" and render the appropriate template
         if page_name == "Street Fighter II 1991":
             return render_template("street_fighter.html", page_path=page_path)
+
+        # Check if the page name is "Final Fantasy VII (1997)" and render the appropriate template
+        if page_name == "Final Fantasy VII 1997":
+            return render_template("final_fantasy.html")
+
+        # Check if the page name is "GoldenEye 007 (1997)" and render the appropriate template
+        if page_name == "GoldenEye 007 1997":
+            return render_template("goldeneye.html")
+
+        # if we're given a non-existing page name, just send back to the index
+
+        return redirect(url_for("page_index"))
+
 
     @app.route("/pages")
     def page_index():
@@ -158,22 +184,48 @@ def make_endpoints(app, backend):
         if request.method == 'POST':
             # Get the uploaded file from the request object
             file = request.files['file']
+            image_file = request.files['image']
+            wikiname = request.form['wikiname']
 
-            if not file:
-                flash("Please enter a file to upload")
+            # If these fields aren't filled out, flash an error message.
+            if not wikiname or not file:
+                flash("Please fill all the required forms (wikiname and file)")
                 return redirect(url_for('upload_file'))
+
+
+            # Get the extensions of the file and rename the filename to the wikiname
+            file_extension = file.filename.split(".")[1]
+            file.filename = wikiname + "." + file_extension
+            
 
             # Upload the file to Cloud Storage
             backend.upload(file)
 
-            # Redirect to the upload page after the upload is complete
-            return redirect(url_for('upload_file'))
+            # If there is an image, then we must also upload it.
+            if image_file:
+                
+                # Get extension and rename it
+                image_extension = image_file.filename.split(".")[1]
+                image_file.filename = wikiname + "." + image_extension
+
+                backend.upload_image(image_file)
+
+
+            # Redirect to the home page after the upload is complete
+            return redirect(url_for('home'))
+
 
         # Render the upload page template on GET requests
         return render_template('upload.html')
 
-    # Ahead, we will work with the Flask Login
 
+
+
+    """
+    ------------------------------------------------
+    Ahead, we will work with the Flask Login
+    ------------------------------------------------
+    """
     login_manager = LoginManager(app)
 
     @login_manager.user_loader
