@@ -16,6 +16,7 @@
                 <li style="display: inline-block; margin-left: 5px; margin-right: 5px;">|</li>
                 <li style="display: inline-block; margin-left: 5px; margin-right: 5px;">  {{current_user.get_id()}} </li>
                 <li style="display: inline-block; margin-left: 5px; margin-right: 5px;">|</li>
+                <li style="display: inline-block; margin-left: 5px; margin-right: 5px;"><a class="page-link" href="{{ url_for('create_page') }}">Create</a></li>
                 <td style="margin-left: 10px; margin-right: 10px;"><a class="page-link" href="{{ url_for('upload_file') }}">Upload</a></td> <!-- THIS UPLOAD PART NEEDS TO BE ONLY WHEN USER IS SIGNED IN, IN COMBINATION WITH LOGOUT -->
                 <li style="display: inline-block; margin-left: 5px; margin-right: 5px;"><a class="page-link" href="{{ url_for('logout') }}">Logout</a></li>
             </ul>
