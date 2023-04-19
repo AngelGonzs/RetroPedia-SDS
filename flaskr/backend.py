@@ -41,12 +41,12 @@ class Backend:
     def __init__(self):
         # Instantiate a new client for Cloud Storage
         self.web_uploads_client = storage.Client()
-        self.wiki_content_client = storage.Client()
-
-        # Get a reference to the web-uploads bucket
         self.web_uploads_bucket = self.web_uploads_client.bucket('web-uploads')
 
-        # Get a reference to the wiki-content bucket
+        self.images_client = storage.Client()
+        self.images_bucket = self.images_client.bucket('img__bucket')
+
+        self.wiki_content_client = storage.Client()
         self.wiki_content_bucket = self.wiki_content_client.bucket('wiki-content-bucket')
 
         # Set the default bucket to wiki-content-bucket
@@ -57,11 +57,8 @@ class Backend:
         self.user_client = storage.Client()
         self.password_bucket = self.user_client.bucket("passwords-bucket")
 
-        # Create a bucket for the images-bucket
-        self.images_client = storage.Client()
-        self.images_bucket = self.images_client.bucket('img__bucket')
 
-    def create_wiki_page(self, page_name, content, author=None):
+    def create_wiki_page(self, page_name, content):
         # Create a new blob in the wiki-content bucket with the provided page_name
         blob = self.wiki_content_bucket.blob(f"{page_name}.txt")
 
@@ -86,6 +83,21 @@ class Backend:
             # If the blob does not exist, return None
             return None
 
+    def delete_wiki_page(self, page_name):
+        # Get a reference to the blob that contains the content for the specified page
+        blob = self.bucket.get_blob(f"{page_name}.txt")
+
+        if blob is not None:
+            # Delete the blob
+            blob.delete()
+
+            # Return the name of the deleted page
+            return page_name
+
+        else:
+            # If the blob does not exist, return None
+            return None
+
     def get_all_page_names(self):
         # List all the blobs in the wiki-content bucket
         blobs = self.bucket.list_blobs()
@@ -93,13 +105,27 @@ class Backend:
         # Extract the name of each blob (page) and add it to a list
         page_names = []
         for blob in blobs:
-            # Ignore blobs that are not files (i.e., folders)
+            # Ignore blobs that are folders
             if not blob.name.endswith('/'):
                 # Extract the page name from the blob name (remove the file extension)
                 page_name = blob.name.split('.')[0]
                 page_names.append(page_name)
 
         return page_names
+
+    def get_wiki_image(self, image_name):
+
+        accepted_extensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp']
+
+        for extension in accepted_extensions:
+            blob = self.web_uploads_bucket.get_blob(image_name + extension)
+
+
+            if blob:
+                image = blob.public_url
+                return image
+
+        return None
 
     def get_wiki_page(self, page_name):
         # Get a reference to the blob that contains the content for the specified page
@@ -116,33 +142,10 @@ class Backend:
             # If the blob does not exist, return None
             return None
 
-    def get_wiki_image(self, image_name):
-
-        accepted_extensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp']
-
-        for extension in accepted_extensions:
-            blob = self.web_uploads_bucket.get_blob(image_name + extension)
-
-
-            if blob:
-                image = blob.public_url
-                return image
-
-        return None
-
     def upload(self, file):
         # Create a new blob in the web-uploads bucket and upload the file data
-
-        # Make sure that the blob doesn't already exist, or should this be allowed as to update pages?
-
-        blob = self.bucket.blob(file.filename)
+        blob = self.web_uploads_bucket.blob(file.filename)
         blob.upload_from_file(file)
-
-    # This will be used solely for upload image-type files, the method
-    # above should then be used to only upload text-type files 
-    def upload_image(self, image):
-        blob = self.web_uploads_bucket.blob(image.filename)
-        blob.upload_from_file(image)
 
     def sign_up(self, username, password):
         """
@@ -237,7 +240,7 @@ class Backend:
 
     def get_image(self, name):
         # Get a reference to the blob that contains the image data
-        blob = self.images_bucket.get_blob(name)
+        blob = self.web_uploads_bucket.get_blob(name)
 
         if blob is not None:
             # Download the content from the blob
@@ -249,6 +252,10 @@ class Backend:
         else:
             # If the blob does not exist, return None
             return None
+
+    def upload_image(self, image):
+        blob = self.web_uploads_bucket.blob(image.filename)
+        blob.upload_from_file(image)
 
     def get_user(self, ID):
         """
@@ -264,8 +271,8 @@ class Backend:
         blob_name = ID
         blob_check = self.password_bucket.blob(blob_name)
         return blob_check.exists()
-    
-    def add_to_favorties(self, page_name, username):
+
+    def add_to_favorites(self, page_name, username):
         """
         This method will add the current page to the user's favorite bucket when the button "Add to Favorites" is clicked
 
@@ -279,4 +286,4 @@ class Backend:
             user_bucket.blob(page_name)
         else:
             #If the user already has a bucket, add the page to the bucket     
-            favorites_bucket.blob(page_name)            
+            favorites_bucket.blob(page_name)   

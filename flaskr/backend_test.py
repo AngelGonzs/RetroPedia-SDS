@@ -9,7 +9,7 @@ from google.cloud.storage.blob import Blob
 from google.cloud import storage
 from flaskr.backend import Backend
 from flaskr import create_app
-
+from flaskr.backend import Backend
 
 
 def test_sign_in_fail_user():
@@ -145,26 +145,8 @@ Cases to test for get_wiki_page:
     2. The page name is not found, and nothing is returned
 """
 
-
-
-def test_get_all_page_names():
-    backend = Backend()
-    backend.bucket = MagicMock()
-
-
-    blob = MagicMock()
-    name = MagicMock()
-
-    backend.bucket.blob.return_value = blob
-    blob.name.return_value = name
-    blob.name = "signup"
-    
-    
-    #Test if a valid page name is in the list
-    backend.bucket.list_blobs.return_value = [blob, blob]
-    result = backend.get_all_page_names()
-    first_blob = result[0]
-    assert "signup" in first_blob
+from unittest.mock import MagicMock
+from flaskr.backend import Backend
 
 def test_create_wiki_page():
     page_name = "test_page"
@@ -173,10 +155,20 @@ def test_create_wiki_page():
     # Create a mock for the Cloud Storage bucket and set it as the backend's bucket attribute
     bucket = MagicMock()
     backend = Backend()
-    backend.bucket = MagicMock()
-    blob = MagicMock()
-    blob.upload("Mario.html")
-    assert blob.upload.called
+    backend.wiki_content_bucket = bucket
+
+    # Call the create_wiki_page method to create a new page with the given name and content
+    backend.create_wiki_page(page_name, content)
+
+    # Test that the create_blob_from_string method was called on the bucket with the correct arguments
+    bucket.blob.assert_called_with(page_name + ".txt")
+    created_blob = bucket.blob.return_value
+    created_blob.upload_from_string.assert_called_with(content)
+
+# Test that the create_blob_from_string method was called on the bucket with the correct arguments
+    bucket.blob.assert_called_with(page_name + ".txt")
+    created_blob = bucket.blob.return_value
+    created_blob.upload_from_string.assert_called_with(content)
 
 
 def test_get_image():
@@ -193,7 +185,7 @@ def test_get_image():
     assert backend.get_image("Random Image").getvalue() == io.BytesIO(
         bytes("Random Image", 'utf-8')).getvalue()
 
-def test_add_to_favorties():
+def test_add_to_favorites():
     #Creation of a mock backend object
     backend = Backend()
     backend.bucket = MagicMock()

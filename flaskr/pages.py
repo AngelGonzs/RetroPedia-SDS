@@ -8,6 +8,7 @@ import requests
 from flask import abort
 from flaskr.backend import Backend
 
+
 def make_endpoints(app, backend):
     backend = Backend()
     # Flask uses the "app.route" decorator to call methods when users
@@ -20,7 +21,7 @@ def make_endpoints(app, backend):
         greeting = "Welcome to RetroPedia! we're still working on the name"  # adds a greeting to the wikipedia
         return render_template("main.html", greeting=greeting)
 
-
+    # TODO(Project 1): Implement additional routes according to the project requirements.
 
     def fetch_pages():
         # Fetch the list of page names from the backend
@@ -72,69 +73,43 @@ def make_endpoints(app, backend):
 
         # Check if the page exists in the backend
         if backend.get_wiki_page(page_name):
-
-            """
-            Fetch the text associated with the page from the GCS content bucket and render the "page.html" template
-            This essentially just calls `text = backend.get_wiki_page(page_name)` to get the contents of that page.
-            """
-            text = fetch_page_text(page_name) 
-
-            image_name = page_name
-            if backend.get_wiki_image(image_name):
-                image = backend.get_wiki_image(image_name)
-                image_text = ""
-
-
-                return render_template("page.html", page_name=page_name, text = text, image = image, image_text = image_text, image_passed = True)
-
-
-
-            return render_template("page.html", page_name=page_name, text=text, image = None, image_passed = False)
+            # Fetch the text associated with the page from the GCS content bucket and render the "page.html" template
+            text = fetch_page_text(
+                page_name
+            )  # This is a function that retrieves the text for the specified page
+            return render_template("page.html", page_name=page_name, text=text)
 
         # Check if the page name is "Super Mario Bros. (1985)" and render the appropriate template
         if page_name == "Super Mario Bros 1985":
-            return render_template("super_mario_bros.html", page_path=page_path)
+            return render_template("super_mario_bros.html")
 
         # Check if the page name is "Pac-Man (1980)" and render the appropriate template
         if page_name == "PacMan 1980":
-            return render_template("pac_man.html", page_path=page_path)
+            return render_template("pac_man.html")
 
         # Check if the page name is "Tetris (1984)" and render the appropriate template
         if page_name == "Tetris 1984":
-            return render_template("tetris.html", page_path=page_path)
+            return render_template("tetris.html")
 
         # Check if the page name is "Donkey Kong (1981)" and render the appropriate template
         if page_name == "Donkey Kong 1981":
-            return render_template("donkey_kong.html", page_path=page_path)
+            return render_template("donkey_kong.html")
 
         # Check if the page name is "Space Invaders (1978)" and render the appropriate template
         if page_name == "Space Invaders 1978":
-            return render_template("space_invaders.html", page_path=page_path)
+            return render_template("space_invaders.html")
 
         # Check if the page name is "The Legend of Zelda (1986)" and render the appropriate template
         if page_name == "The Legend of Zelda 1986":
-            return render_template("zelda.html", page_path=page_path)
+            return render_template("zelda.html")
 
         # Check if the page name is "Sonic the Hedgehog (1991)" and render the appropriate template
         if page_name == "Sonic the Hedgehog 1991":
-            return render_template("sonic.html",  page_path=page_path)
+            return render_template("sonic.html")
 
         # Check if the page name is "Street Fighter II (1991)" and render the appropriate template
         if page_name == "Street Fighter II 1991":
-            return render_template("street_fighter.html", page_path=page_path)
-
-        # Check if the page name is "Final Fantasy VII (1997)" and render the appropriate template
-        if page_name == "Final Fantasy VII 1997":
-            return render_template("final_fantasy.html")
-
-        # Check if the page name is "GoldenEye 007 (1997)" and render the appropriate template
-        if page_name == "GoldenEye 007 1997":
-            return render_template("goldeneye.html")
-
-        # if we're given a non-existing page name, just send back to the index
-
-        return redirect(url_for("page_index"))
-
+            return render_template("street_fighter.html")
 
     @app.route("/pages")
     def page_index():
@@ -218,14 +193,8 @@ def make_endpoints(app, backend):
         # Render the upload page template on GET requests
         return render_template('upload.html')
 
+    # Ahead, we will work with the Flask Login
 
-
-
-    """
-    ------------------------------------------------
-    Ahead, we will work with the Flask Login
-    ------------------------------------------------
-    """
     login_manager = LoginManager(app)
 
     @login_manager.user_loader
@@ -311,14 +280,65 @@ def make_endpoints(app, backend):
                 return redirect(url_for("signup"))
 
         return render_template("signup.html")
-        
+
+    @app.route('/create-page', methods=['GET', 'POST'])
+    @login_required
+    def create_page():
+        if request.method == 'POST':
+            page_name = request.form['page_name']
+            content = request.form['content']
+
+            backend = Backend()
+            backend.create_wiki_page(page_name, content)
+
+            return redirect(url_for('page', page_path=page_name.replace(' ', '-')))
+
+        return render_template('create_page.html')
+
+    @app.route('/pages/<page_name>/edit', methods=['GET', 'POST'])
+    @login_required
+    def edit_page(page_name):
+        #page = Page.query.filter_by(name=page_name).first_or_404()
+
+        if request.method == 'POST':
+            page.content = request.form['page_content']
+           # db.session.commit()
+            flash('Page updated successfully!', 'success')
+            return redirect(url_for('view_page', page_name=page_name))
+
+        return render_template('edit_page.html', page_name=page_name, page_content=page.content)
+
+
+    @app.route('/delete-page/<page_name>', methods=['GET', 'POST'])
+    @login_required
+    def delete_page(page_name):
+        backend = Backend()
+        if request.method == 'POST':
+            backend.delete_wiki_page(page_name)
+            return redirect(url_for('home'))
+        else:
+            return render_template('delete_page.html', page_name=page_name)
+
+    @app.route('/wiki/<path:page_path>')
+    def view_page(page_path):
+        # Get the content of the page
+        content = backend.get_wiki_page(page_path)
+
+        # If the page doesn't exist, return a 404 error
+        if content is None:
+            abort(404)
+
+        # Pass the page_name to the template
+        page_name = page_path.split('/')[-1].replace('-', ' ')
+        return render_template('view_page.html', content=content, page_name=page_name)
+
     @app.route("/add-favs/<page_path>", methods=["POST"])
     @login_required
-    def add_to_favorties(page_path):
+    def add_to_favorites(page_path):
         backend = Backend()
         if request.method == 'POST':
             current_username = current_user.get_id()
-            backend.add_to_favorties(page_path, current_username)
+            backend.add_to_favorites(page_path, current_username)
             print("add_to_favorites method was ran")
             flash("Page added to favorites!")
             return redirect(url_for('page' , page_path = page_path))
@@ -340,36 +360,4 @@ def make_endpoints(app, backend):
         if not user_bucket:
             flash("Please sign in or add a page to your favorites first!")
         else:
-           return render_template("favorites.html", pages = backend.user_client.list_blobs(user_bucket))                 
-        
-
-    @app.route('/pages/create', methods=['GET', 'POST'])
-    @login_required
-    def create_page():
-        if request.method == 'POST':
-            # Get the page data from the form
-            title = request.form['title']
-            content = request.form['content']
-            author = request.form['author']
-
-            # Create the page in the backend
-            backend.create_wiki_page(title, content, author)
-
-            # Redirect to the newly created page
-            return redirect(url_for('page', page_path=title.replace(' ', '-')))
-
-        # Render the page creation form on GET requests
-        return render_template('create_page.html')
-
-    @app.route('/wiki/<path:page_path>')
-    def view_page(page_path):
-        # Get the content of the page
-        content = backend.get_wiki_page(page_path)
-
-        # If the page doesn't exist, return a 404 error
-        if content is None:
-            abort(404)
-
-        # Pass the page_name to the template
-        page_name = page_path.split('/')[-1].replace('-', ' ')
-        return render_template('view_page.html', content=content, page_name=page_name)
+           return render_template("favorites.html", pages = backend.user_client.list_blobs(user_bucket))  

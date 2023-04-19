@@ -89,17 +89,15 @@ def about_page(client):
     assert resp.status_code == 200
 
 def test_create_page(client):
-    # Log in the user before creating an article
+    # Log in the user before creating a page
     client.post("/login", data={"username": "sam", "password": "1234"})
 
-    # Create a new article
-    title = "Test Article"
-    content = "This is a test article."
-    author = "sam"
-    resp = client.post("/pages/create", data={"title": title, "content": content, "author": author})
+    # Create a new page
+    page_name = "Test Page"
+    content = "This is a test page."
+    resp = client.post("/create-page", data={"page_name": page_name, "content": content})
 
-    # Check that the article was created
+    # Check that the page was created
     assert resp.status_code == 302
-    assert backend.get_wiki_page(title) == content
+    assert backend.get_wiki_page(page_name) == content
 
-    
