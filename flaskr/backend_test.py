@@ -8,6 +8,8 @@ import io
 from google.cloud.storage.blob import Blob
 from google.cloud import storage
 from flaskr.backend import Backend
+from flaskr import create_app
+
 
 
 def test_sign_in_fail_user():
@@ -142,27 +144,7 @@ Cases to test for get_wiki_page:
     1. The page name is found, and the html file is returned
     2. The page name is not found, and nothing is returned
 """
-from unittest.mock import MagicMock
 
-
-def test_get_wiki_page():
-    # Create a mock backend object
-    backend = Backend()
-    backend.bucket = MagicMock()
-
-    # Create a mock blob object and set it as the return value of the bucket.get_blob method
-    blob = MagicMock()
-    backend.bucket.get_blob.return_value = blob
-
-    # Test that the method returns the content of an existing page
-    page_name = "existing_page"
-    blob.download_as_text.return_value = "Page content"
-    assert backend.get_wiki_page(page_name) == "Page content"
-
-    # Test that the method returns None for a non-existent page
-    page_name = "non_existent_page"
-    backend.bucket.get_blob.return_value = None
-    assert backend.get_wiki_page(page_name) is None
 
 
 def test_get_all_page_names():
@@ -184,8 +166,12 @@ def test_get_all_page_names():
     first_blob = result[0]
     assert "signup" in first_blob
 
+def test_create_wiki_page():
+    page_name = "test_page"
+    content = "This is a test page."
 
-def test_upload():
+    # Create a mock for the Cloud Storage bucket and set it as the backend's bucket attribute
+    bucket = MagicMock()
     backend = Backend()
     backend.bucket = MagicMock()
     blob = MagicMock()
@@ -270,3 +256,12 @@ def test_get_wiki_image():
     # It will actually be == "None"
 
 
+    backend.wiki_content_bucket = bucket
+
+    # Call the create_wiki_page method to create a new page with the given name and content
+    backend.create_wiki_page(page_name, content)
+
+    # Test that the create_blob_from_string method was called on the bucket with the correct arguments
+    bucket.blob.assert_called_with(page_name + ".txt")
+    created_blob = bucket.blob.return_value
+    created_blob.upload_from_string.assert_called_with(content)

@@ -47,8 +47,7 @@ class Backend:
         self.web_uploads_bucket = self.web_uploads_client.bucket('web-uploads')
 
         # Get a reference to the wiki-content bucket
-        self.wiki_content_bucket = self.wiki_content_client.bucket(
-            'wiki-content-bucket')
+        self.wiki_content_bucket = self.wiki_content_client.bucket('wiki-content-bucket')
 
         # Set the default bucket to wiki-content-bucket
         self.bucket = self.wiki_content_bucket
@@ -58,10 +57,34 @@ class Backend:
         self.user_client = storage.Client()
         self.password_bucket = self.user_client.bucket("passwords-bucket")
 
-
         # Create a bucket for the images-bucket
         self.images_client = storage.Client()
         self.images_bucket = self.images_client.bucket('img__bucket')
+
+    def create_wiki_page(self, page_name, content, author=None):
+        # Create a new blob in the wiki-content bucket with the provided page_name
+        blob = self.wiki_content_bucket.blob(f"{page_name}.txt")
+
+        # Set the content of the blob to the provided content
+        blob.upload_from_string(content)
+
+        # Return the name of the newly created page
+        return page_name
+
+    def update_wiki_page(self, page_name, content):
+        # Get a reference to the blob that contains the content for the specified page
+        blob = self.bucket.get_blob(f"{page_name}.txt")
+
+        if blob is not None:
+            # Update the content of the blob with the provided content
+            blob.upload_from_string(content)
+
+            # Return the name of the updated page
+            return page_name
+
+        else:
+            # If the blob does not exist, return None
+            return None
 
     def get_all_page_names(self):
         # List all the blobs in the wiki-content bucket

@@ -5,8 +5,8 @@ from flask import Response
 import base64
 import re
 import requests
+from flask import abort
 from flaskr.backend import Backend
-
 
 def make_endpoints(app, backend):
     backend = Backend()
@@ -311,6 +311,7 @@ def make_endpoints(app, backend):
                 return redirect(url_for("signup"))
 
         return render_template("signup.html")
+        
     @app.route("/add-favs/<page_path>", methods=["POST"])
     @login_required
     def add_to_favorties(page_path):
@@ -322,6 +323,7 @@ def make_endpoints(app, backend):
             flash("Page added to favorites!")
             return redirect(url_for('page' , page_path = page_path))
         return redirect(url_for('page' , page_path = page_path))
+
     @app.route("/favs")
     @login_required
     def display_favs():
@@ -340,3 +342,34 @@ def make_endpoints(app, backend):
         else:
            return render_template("favorites.html", pages = backend.user_client.list_blobs(user_bucket))                 
         
+
+    @app.route('/pages/create', methods=['GET', 'POST'])
+    @login_required
+    def create_page():
+        if request.method == 'POST':
+            # Get the page data from the form
+            title = request.form['title']
+            content = request.form['content']
+            author = request.form['author']
+
+            # Create the page in the backend
+            backend.create_wiki_page(title, content, author)
+
+            # Redirect to the newly created page
+            return redirect(url_for('page', page_path=title.replace(' ', '-')))
+
+        # Render the page creation form on GET requests
+        return render_template('create_page.html')
+
+    @app.route('/wiki/<path:page_path>')
+    def view_page(page_path):
+        # Get the content of the page
+        content = backend.get_wiki_page(page_path)
+
+        # If the page doesn't exist, return a 404 error
+        if content is None:
+            abort(404)
+
+        # Pass the page_name to the template
+        page_name = page_path.split('/')[-1].replace('-', ' ')
+        return render_template('view_page.html', content=content, page_name=page_name)
