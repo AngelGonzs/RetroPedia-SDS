@@ -5,8 +5,14 @@ Favorites:
 {% endblock %}
 
 {% block content %}
-<p>Favorites should be displayed here  </p>
-{% endblock %}
+{% if pages %}
+<ul>
+    {% for page in pages %}
+        <li class="index"><a class="page-link" href="{{ url_for("display_favs", page_path = page) }}">{{ page.replace('-', ' ')}}</a></li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}git add.
 
 
 

@@ -321,5 +321,22 @@ def make_endpoints(app, backend):
             print("add_to_favorites method was ran")
             flash("Page added to favorites!")
             return redirect(url_for('page' , page_path = page_path))
-                        
+        return redirect(url_for('page' , page_path = page_path))
+    @app.route("/favs")
+    @login_required
+    def display_favs():
+        """
+        This method will display the users' pages that they have added to their unique favorites bucket.
+
+        """
+        #Creating variables for intialization  
+        current_username = current_user.get_id()
+        backend = Backend()        
+        user_bucket = backend.user_client.bucket(current_username + "-favorites")
+
+       #Check if the bucket exists, if it does, send the page information to the template 
+        if not user_bucket:
+            flash("Please sign in or add a page to your favorites first!")
+        else:
+           return render_template("favorites.html", pages = backend.user_client.list_blobs(user_bucket))                 
         
