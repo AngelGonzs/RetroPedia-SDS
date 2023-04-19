@@ -10,7 +10,7 @@ from google.cloud import storage
 from flaskr.backend import Backend
 from flaskr import create_app
 from flaskr.backend import Backend
-
+from io import BytesIO
 
 def test_sign_in_fail_user():
 
@@ -171,19 +171,7 @@ def test_create_wiki_page():
     created_blob.upload_from_string.assert_called_with(content)
 
 
-def test_get_image():
-    backend = Backend()
-    backend.bucket = MagicMock()
-    backend.images_bucket = MagicMock()
-    blob = MagicMock()
 
-
-    blob.download_as_bytes.return_value = bytes("Random Image", 'utf-8')
-    backend.images_bucket.get_blob.return_value = blob
-
-
-    assert backend.get_image("Random Image").getvalue() == io.BytesIO(
-        bytes("Random Image", 'utf-8')).getvalue()
 
 def test_add_to_favorites():
     #Creation of a mock backend object
@@ -197,7 +185,7 @@ def test_add_to_favorites():
     #Test that the bucket contains an existing page the user added
     page_name = "Mario"
     username = "Deez"
-    backend.add_to_favorties(page_name, username)
+    backend.add_to_favorites(page_name, username)
     backend.user_client.bucket(username + "-favorites").blob.return_value = blob
     assert backend.user_client.bucket(username + "-favorites").blob(page_name) != None
 
@@ -223,7 +211,19 @@ def test_upload_image():
 
     assert result != "image_name"
 
+def test_get_image():
+    backend = Backend()
+    backend.bucket = MagicMock()
+    backend.images_bucket = MagicMock()
+    blob = MagicMock()
 
+
+    blob.download_as_bytes.return_value = bytes("Random Image", 'utf-8')
+    backend.images_bucket.get_blob.return_value = blob
+
+
+    assert backend.get_image("Random Image").getvalue() == io.BytesIO(
+        bytes("Random Image", 'utf-8')).getvalue()
 
 def test_get_wiki_image():
 
