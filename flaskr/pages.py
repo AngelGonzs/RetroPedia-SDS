@@ -335,7 +335,7 @@ def make_endpoints(app, backend):
         user_bucket = backend.user_client.bucket(current_username + "-favorites")
 
        #Check if the bucket exists, if it does, send the page information to the template 
-        if not user_bucket:
+        if not user_bucket.exists():
             flash("Please sign in or add a page to your favorites first!")
         else:
            return render_template("favorites.html", pages = backend.user_client.list_blobs(user_bucket))                 
