@@ -271,10 +271,9 @@ class Backend:
 
         """
         favorites_bucket = self.user_client.bucket(username + "-favorites")
-        if favorites_bucket is None:
+        if not favorites_bucket.exists():
             #Creates the favorites bucket for the user
-            bucket = self.user_client.bucket(username + "-favorites")
-            user_bucket = self.user_client.create_bucket(bucket, location="us")
+            user_bucket = self.user_client.create_bucket(bucket_or_name=username + "-favorites", location="us")
             #Creating a blob with the pages name in it, to be used in the future to grab the url information, and adds it to the bucket.
             user_bucket.blob(page_name)
         else:
