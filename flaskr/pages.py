@@ -80,16 +80,12 @@ def make_endpoints(app, backend):
             text = fetch_page_text(page_name) 
 
             image_name = page_name
+            is_page_in_favorites = page_path in backend.get_favorites(current_user.get_id())
             if backend.get_wiki_image(image_name):
                 image = backend.get_wiki_image(image_name)
                 image_text = ""
-
-
-                return render_template("page.html", page_name=page_name, text = text, image = image, image_text = image_text, image_passed = True)
-
-
-
-            return render_template("page.html", page_name=page_name, text=text, image = None, image_passed = False)
+                return render_template("page.html", page_name=page_name, text = text, image = image, image_text = image_text, image_passed = True, is_page_in_favorites=is_page_in_favorites, page_path=page_path)
+            return render_template("page.html", page_name=page_name, text=text, image = None, image_passed = False, is_page_in_favorites=is_page_in_favorites, page_path=page_path)
 
         # Check if the page name is "Super Mario Bros. (1985)" and render the appropriate template
         if page_name == "Super Mario Bros 1985":
@@ -130,11 +126,9 @@ def make_endpoints(app, backend):
         # Check if the page name is "GoldenEye 007 (1997)" and render the appropriate template
         if page_name == "GoldenEye 007 1997":
             return render_template("goldeneye.html")
-
+            
         # if we're given a non-existing page name, just send back to the index
-
         return redirect(url_for("page_index"))
-
 
     @app.route("/pages")
     def page_index():
@@ -314,13 +308,23 @@ def make_endpoints(app, backend):
         
     @app.route("/add-favs/<page_path>", methods=["POST"])
     @login_required
-    def add_to_favorties(page_path):
+    def add_to_favorites(page_path):
         backend = Backend()
         if request.method == 'POST':
             current_username = current_user.get_id()
-            backend.add_to_favorties(page_path, current_username)
-            print("add_to_favorites method was ran")
+            backend.add_to_favorites(page_path, current_username)
             flash("Page added to favorites!")
+            return redirect(url_for('page' , page_path = page_path))
+        return redirect(url_for('page' , page_path = page_path))
+
+    @app.route("/remove-favs/<page_path>", methods=["POST"])
+    @login_required
+    def remove_from_favorites(page_path):
+        backend = Backend()
+        if request.method == 'POST':
+            current_username = current_user.get_id()
+            backend.remove_from_favorites(page_path, current_username)
+            flash("Page removed from favorites!")
             return redirect(url_for('page' , page_path = page_path))
         return redirect(url_for('page' , page_path = page_path))
 
@@ -334,12 +338,7 @@ def make_endpoints(app, backend):
         #Creating variables for intialization  
         current_username = current_user.get_id()
         backend = Backend()        
-        user_bucket = backend.user_client.bucket(current_username + "-favorites")
-
-       #Check if the bucket exists, if it does, send the page information to the template 
-        if not user_bucket.exists():
-            flash("Please sign in or add a page to your favorites first!")
-        return render_template("favorites.html", pages = backend.user_client.list_blobs(user_bucket))                 
+        return render_template("favorites.html", pages = backend.get_favorites(current_username))                 
         
 
     @app.route('/pages/create', methods=['GET', 'POST'])

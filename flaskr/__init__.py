@@ -2,10 +2,6 @@ from flaskr import pages
 from flaskr import backend
 from flask import Flask
 
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
-
 
 # The flask terminal command inside "run-flask.sh" searches for
 # this method inside of __init__.py (containing flaskr module

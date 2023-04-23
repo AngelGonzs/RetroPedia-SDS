@@ -8,7 +8,7 @@ Favorites:
 {% if pages %}
 <ul>
     {% for page in pages %}
-        <li class="index"><a class="page-link" href="{{ url_for("display_favs", page_path = page) }}">{{ page.replace('-', ' ')}}</a></li>
+        <li class="index"><a class="page-link" href="{{ url_for("page", page_path = page) }}">{{ page.replace('-', ' ')}}</a></li>
     {% endfor %}
 </ul>
 {% endif %}
