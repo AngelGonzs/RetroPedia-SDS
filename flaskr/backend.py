@@ -54,7 +54,7 @@ class Backend:
 
         # Initiate buckets and clients for `sign_in` and `sign_up` methods
 
-        self.user_client = storage.Client()
+        self.user_client = storage.Client(project='sds-project-1')
         self.password_bucket = self.user_client.bucket("passwords-bucket")
 
         # Create a bucket for the images-bucket
@@ -265,7 +265,7 @@ class Backend:
         blob_check = self.password_bucket.blob(blob_name)
         return blob_check.exists()
     
-    def add_to_favorties(self, page_name, username):
+    def add_to_favorites(self, page_name, username):
         """
         This method will add the current page to the user's favorite bucket when the button "Add to Favorites" is clicked
 
@@ -273,9 +273,26 @@ class Backend:
         favorites_bucket = self.user_client.bucket(username + "-favorites")
         if not favorites_bucket.exists():
             #Creates the favorites bucket for the user
-            user_bucket = self.user_client.create_bucket(bucket_or_name=username + "-favorites", location="us")
+            user_bucket = self.user_client.create_bucket(favorites_bucket, location="us")
             #Creating a blob with the pages name in it, to be used in the future to grab the url information, and adds it to the bucket.
-            user_bucket.blob(page_name)
+            blob = user_bucket.blob(page_name)
+            blob.upload_from_string("")
         else:
             #If the user already has a bucket, add the page to the bucket     
-            favorites_bucket.blob(page_name)            
+            blob = favorites_bucket.blob(page_name)
+            blob.upload_from_string("")
+
+    def remove_from_favorites(self, page_name, username):
+        """
+        This method will remove the current page from the user's favorite bucket when the button "Remove from Favorites" is clicked
+
+        """
+        favorites_bucket = self.user_client.bucket(username + "-favorites")
+        if favorites_bucket.exists():
+            blob = favorites_bucket.blob(page_name)
+            if blob.exists():
+                blob.delete()
+
+    def get_favorites(self, username):
+        favorites_bucket = self.user_client.bucket(username + "-favorites")
+        return [blob.name for blob in favorites_bucket.list_blobs()] if favorites_bucket.exists() else []
