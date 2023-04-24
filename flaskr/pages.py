@@ -21,111 +21,24 @@ def make_endpoints(app, backend):
         return render_template("main.html", greeting=greeting)
 
 
-
-    def fetch_pages():
-        # Fetch the list of page names from the backend
-        pages = backend.get_all_page_names()
-
-        # Define the new page names with their corresponding user-friendly names
-        new_pages = {
-            "Super Mario Bros (1985)": "Super Mario Bros. 1985",
-            "PacMan (1980)": "Pac-Man 1980",
-            "Tetris (1984)": "Tetris 1984",
-            "Donkey Kong (1981)": "Donkey Kong 1981",
-            "Space Invaders (1978)": "Space Invaders 1978",
-            "The Legend of Zelda (1986)": "The Legend of Zelda 1986",
-            "Sonic the Hedgehog (1991)": "Sonic the Hedgehog 1991",
-            "Street Fighter II (1991)": "Street Fighter II 1991",
-            "Final Fantasy VII (1997)": "Final Fantasy VII 1997",
-            "GoldenEye 007 (1997)": "GoldenEye 007 1997"
-        }
-
-        # Modify the keys in the new_pages dictionary to make them URL-safe and append them to the pages list
-        pages += [
-            re.sub(r'\W+', '-', page).strip('-') for page in new_pages.keys()
-        ]
-
-        # Create a list of user-friendly page names and zip them with the URL-safe page names
-        pretty_page_names = []
-        page_links = []
-        for page in pages:
-            # Check if the page is a new page or an existing page
-            if page in new_pages.values():
-                # If the page is a new page, get the corresponding URL-safe page name from the new_pages dictionary
-                url_page = [k for k, v in new_pages.items() if v == page][0]
-            else:
-                # If the page is an existing page, make it URL-safe
-                url_page = re.sub(r'\W+', '-', page).strip('-')
-            pretty_page_names.append(page)
-            page_links.append(url_for('page', page_path=url_page))
-
-        # Combine the two lists and pass them to the template
-        pages = list(zip(pretty_page_names, page_links))
-
-        # Return the updated list of page names
-        return pages
-
     @app.route("/pages/<path:page_path>")
     def page(page_path):
-        # Convert the URL-safe page path back to the original page name
-        page_name = page_path.replace('-', ' ')
-
         # Check if the page exists in the backend
-        if backend.get_wiki_page(page_name):
+        if backend.get_wiki_page(page_path):
 
             """
             Fetch the text associated with the page from the GCS content bucket and render the "page.html" template
-            This essentially just calls `text = backend.get_wiki_page(page_name)` to get the contents of that page.
+            This essentially just calls `text = backend.get_wiki_page(page_path)` to get the contents of that page.
             """
-            text = fetch_page_text(page_name) 
+            text = fetch_page_text(page_path) 
 
-            image_name = page_name
+            image_name = page_path
             is_page_in_favorites = page_path in backend.get_favorites(current_user.get_id())
             if backend.get_wiki_image(image_name):
                 image = backend.get_wiki_image(image_name)
                 image_text = ""
-                return render_template("page.html", page_name=page_name, text = text, image = image, image_text = image_text, image_passed = True, is_page_in_favorites=is_page_in_favorites, page_path=page_path)
-            return render_template("page.html", page_name=page_name, text=text, image = None, image_passed = False, is_page_in_favorites=is_page_in_favorites, page_path=page_path)
-
-        # Check if the page name is "Super Mario Bros. (1985)" and render the appropriate template
-        if page_name == "Super Mario Bros 1985":
-            return render_template("super_mario_bros.html", page_path=page_path)
-
-        # Check if the page name is "Pac-Man (1980)" and render the appropriate template
-        if page_name == "PacMan 1980":
-            return render_template("pac_man.html", page_path=page_path)
-
-        # Check if the page name is "Tetris (1984)" and render the appropriate template
-        if page_name == "Tetris 1984":
-            return render_template("tetris.html", page_path=page_path)
-
-        # Check if the page name is "Donkey Kong (1981)" and render the appropriate template
-        if page_name == "Donkey Kong 1981":
-            return render_template("donkey_kong.html", page_path=page_path)
-
-        # Check if the page name is "Space Invaders (1978)" and render the appropriate template
-        if page_name == "Space Invaders 1978":
-            return render_template("space_invaders.html", page_path=page_path)
-
-        # Check if the page name is "The Legend of Zelda (1986)" and render the appropriate template
-        if page_name == "The Legend of Zelda 1986":
-            return render_template("zelda.html", page_path=page_path)
-
-        # Check if the page name is "Sonic the Hedgehog (1991)" and render the appropriate template
-        if page_name == "Sonic the Hedgehog 1991":
-            return render_template("sonic.html",  page_path=page_path)
-
-        # Check if the page name is "Street Fighter II (1991)" and render the appropriate template
-        if page_name == "Street Fighter II 1991":
-            return render_template("street_fighter.html", page_path=page_path)
-
-        # Check if the page name is "Final Fantasy VII (1997)" and render the appropriate template
-        if page_name == "Final Fantasy VII 1997":
-            return render_template("final_fantasy.html")
-
-        # Check if the page name is "GoldenEye 007 (1997)" and render the appropriate template
-        if page_name == "GoldenEye 007 1997":
-            return render_template("goldeneye.html")
+                return render_template("page.html", page_name=page_path, text = text, image = image, image_text = image_text, image_passed = True, is_page_in_favorites=is_page_in_favorites, page_path=page_path)
+            return render_template("page.html", page_name=page_path, text=text, image = None, image_passed = False, is_page_in_favorites=is_page_in_favorites, page_path=page_path)
             
         # if we're given a non-existing page name, just send back to the index
         return redirect(url_for("page_index"))
@@ -133,7 +46,7 @@ def make_endpoints(app, backend):
     @app.route("/pages")
     def page_index():
         # Fetch a list of pages from the GCS content bucket and render the "page_index.html" template
-        pages = fetch_pages()
+        pages = backend.get_all_page_names()
         if not pages:
             message = "No pages available."
             return render_template("page_index.html", message=message)
