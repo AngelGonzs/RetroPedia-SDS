@@ -193,7 +193,7 @@ def test_get_image():
     assert backend.get_image("Random Image").getvalue() == io.BytesIO(
         bytes("Random Image", 'utf-8')).getvalue()
 
-def test_add_to_favorties():
+def test_add_to_favorites():
     #Creation of a mock backend object
     backend = Backend()
     backend.bucket = MagicMock()
@@ -205,7 +205,7 @@ def test_add_to_favorties():
     #Test that the bucket contains an existing page the user added
     page_name = "Mario"
     username = "Deez"
-    backend.add_to_favorties(page_name, username)
+    backend.add_to_favorites(page_name, username)
     backend.user_client.bucket(username + "-favorites").blob.return_value = blob
     assert backend.user_client.bucket(username + "-favorites").blob(page_name) != None
 
